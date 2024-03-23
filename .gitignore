@@ -11,3 +11,12 @@ __pycache__/
 
 # Arquivos de ambiente
 .env
+.flaskenv
+
+# Arquivos específicos de IDE ou editor que não são necessários para o projeto em si
+.vscode/
+.idea/
+
+# Arquivos de cache ou diretórios específicos do sistema operacional que não devem ser incluídos
+.DS_Store
+Thumbs.db
