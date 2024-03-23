@@ -1,0 +1,13 @@
+# Pastas e arquivos de ambiente virtual
+venv/
+instance/
+
+# Arquivo de banco de dados SQLite
+*.db
+
+# Pastas e arquivos temporários
+__pycache__/
+*.py[cod]
+
+# Arquivos de ambiente
+.env
