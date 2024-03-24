@@ -40,3 +40,47 @@ class Service(db.Model):
     images = db.Column(db.Text, nullable=True)
     location = db.Column(db.String(255), nullable=True)  # Only relevant for non-online services
     created_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+class Trade(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    proposer_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    offered_product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    requested_product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    offered_service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
+    requested_service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
+    status = db.Column(db.String(50), default='pending')
+    message = db.Column(db.Text, nullable=True)
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+
+    proposer = db.relationship('User', foreign_keys=[proposer_user_id], backref='trades_made')
+    receiver = db.relationship('User', foreign_keys=[receiver_user_id], backref='trades_received')
+    offered_product = db.relationship('Product', foreign_keys=[offered_product_id], backref='trades_offered')
+    requested_product = db.relationship('Product', foreign_keys=[requested_product_id], backref='trades_requested')
+    offered_service = db.relationship('Service', foreign_keys=[offered_service_id], backref='trades_offered')
+    requested_service = db.relationship('Service', foreign_keys=[requested_service_id], backref='trades_requested')
+
+class Wishlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
+    priority = db.Column(db.Integer, default=1)  # 1 a 5, conforme a sua descrição
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='wishlist')
+    product = db.relationship('Product', backref='wishlist_entries')
+    service = db.relationship('Service', backref='wishlist_entries')
+
+
+class Favorite(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='favorites')
+    product = db.relationship('Product', backref='favorited_by')
+    service = db.relationship('Service', backref='favorited_by')
