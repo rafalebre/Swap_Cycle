@@ -6,6 +6,7 @@ from flask_admin.contrib.sqla import ModelView
 from .config import Config
 from flask_jwt_extended import JWTManager
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 def create_app():
@@ -31,6 +32,9 @@ def create_app():
     admin.add_view(ModelView(Trade, db.session))
     admin.add_view(ModelView(Wishlist, db.session))
     admin.add_view(ModelView(Favorite, db.session))
+
+    from .auth import auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     @app.route('/')
     def hello():
