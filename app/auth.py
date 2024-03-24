@@ -23,7 +23,7 @@ def register():
     new_user = User(
         email=email,
         username=username,
-        password_hash=generate_password_hash(password)
+        password_hash=generate_password_hash(password, method='pbkdf2:sha256')
     )
     db.session.add(new_user)
     db.session.commit()
