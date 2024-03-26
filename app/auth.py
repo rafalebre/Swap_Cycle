@@ -46,33 +46,40 @@ def login():
 
     return jsonify({"error": "Invalid credentials"}), 401
 
+from datetime import datetime
+
 @auth_blueprint.route('/update', methods=['PUT'])
 @jwt_required()
 def update_user():
-    current_user_email = get_jwt_identity()
-    user = User.query.filter_by(email=current_user_email).first()
+    data = request.get_json()
+    email = data.get('email')
+
+    user = User.query.filter_by(email=email).first()
 
     if user is None:
         return jsonify({"error": "User not found"}), 404
 
-    data = request.get_json()
     name = data.get('name')
     surname = data.get('surname')
-    birth_date = data.get('birth_date')
+    birth_date_str = data.get('birth_date')
     profile_picture = data.get('profile_picture')
-    # Considerar a inclusão do endereço
+    address = data.get('address')
 
-    # Atualiza os campos se foram fornecidos na requisição
     if name:
         user.name = name
     if surname:
         user.surname = surname
-    if birth_date:
+    if birth_date_str:
+        # Converte a string de data para um objeto datetime
+        birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d")
         user.birth_date = birth_date
     if profile_picture:
         user.profile_picture = profile_picture
-    # Atualizar o endereço aqui se aplicável
+    if address:
+        user.address = address
 
     db.session.commit()
 
     return jsonify({"message": "User information updated successfully"}), 200
+
+
