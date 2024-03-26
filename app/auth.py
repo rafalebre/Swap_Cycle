@@ -28,7 +28,9 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User created successfully"}), 201
+    access_token = create_access_token(identity=email)
+
+    return jsonify({"message": "User created successfully", "access_token": access_token}), 201
 
 @auth_blueprint.route('/login', methods=['POST'])
 def login():
