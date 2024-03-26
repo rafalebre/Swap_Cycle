@@ -12,34 +12,57 @@ class User(db.Model):
     profile_picture = db.Column(db.String(255), nullable=True)
     address = db.Column(db.String(255), nullable=True)
     registered_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    products = db.relationship('Product', backref='user', lazy='dynamic')
+    services = db.relationship('Service', backref='user', lazy='dynamic')
 
+
+class ProductCategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    products = db.relationship('Product', backref='category', lazy='dynamic')
+
+class ProductSubcategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('product_category.id'), nullable=False)
+    products = db.relationship('Product', backref='subcategory', lazy='dynamic')
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    category = db.Column(db.String(50), nullable=False)
-    subcategory = db.Column(db.String(50), nullable=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('product_category.id'), nullable=False)
+    subcategory_id = db.Column(db.Integer, db.ForeignKey('product_subcategory.id'), nullable=True)
     condition = db.Column(db.String(50), nullable=False)
     estimated_value = db.Column(db.Float, nullable=True)
-    images = db.Column(db.Text, nullable=True)  # Can store multiple image URLs separated by some delimiter
+    images = db.Column(db.Text, nullable=True)
     location = db.Column(db.String(255), nullable=True)
-    created_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
+class ServiceCategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    services = db.relationship('Service', backref='category', lazy='dynamic')
+
+class ServiceSubcategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('service_category.id'), nullable=False)
+    services = db.relationship('Service', backref='subcategory', lazy='dynamic')
 
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    category = db.Column(db.String(50), nullable=False)
-    subcategory = db.Column(db.String(50), nullable=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('service_category.id'), nullable=False)
+    subcategory_id = db.Column(db.Integer, db.ForeignKey('service_subcategory.id'), nullable=True)
     online = db.Column(db.Boolean, default=False, nullable=False)
     estimated_value = db.Column(db.Float, nullable=True)
     images = db.Column(db.Text, nullable=True)
-    location = db.Column(db.String(255), nullable=True)  # Only relevant for non-online services
-    created_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    location = db.Column(db.String(255), nullable=True)
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class Trade(db.Model):
