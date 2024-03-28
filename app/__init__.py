@@ -40,6 +40,10 @@ def create_app():
     from .auth import auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
+    from .routes import products_blueprint
+    app.register_blueprint(products_blueprint)
+
+
     @app.route('/')
     def hello():
         return "Hello, Flask!"
