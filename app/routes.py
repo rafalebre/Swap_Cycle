@@ -47,3 +47,39 @@ def create_product():
         return jsonify({"error": "Failed to create product. Please check your data."}), 500
 
     return jsonify({"message": "Product created successfully", "product_id": product.id}), 201
+
+@products_blueprint.route('/products/<int:product_id>', methods=['PUT'])
+@jwt_required()
+def update_product(product_id):
+    user_email = get_jwt_identity()
+    data = request.get_json()
+
+    # Encontrar o usuário e o produto baseados no e-mail e id do produto
+    user = User.query.filter_by(email=user_email).first()
+    product = Product.query.filter_by(id=product_id, user_id=user.id).first()
+
+    if not product:
+        return jsonify({"error": "Product not found or not owned by user"}), 404
+
+    # Atualizar os campos do produto com os dados fornecidos
+    fields_to_update = ['name', 'description', 'category_id', 'condition', 'estimated_value', 'location']
+    for field in fields_to_update:
+        if field in data:
+            setattr(product, field, data[field])
+
+    db.session.commit()
+    return jsonify({"message": "Product updated successfully"}), 200
+
+@products_blueprint.route('/products/<int:product_id>', methods=['DELETE'])
+@jwt_required()
+def delete_product(product_id):
+    user_email = get_jwt_identity()
+    user = User.query.filter_by(email=user_email).first()
+    product = Product.query.filter_by(id=product_id, user_id=user.id).first()
+
+    if not product:
+        return jsonify({"error": "Product not found or not owned by user"}), 404
+
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({"message": "Product deleted successfully"}), 200
