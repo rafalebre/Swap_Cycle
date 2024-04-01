@@ -193,14 +193,16 @@ def create_trade():
         requested_product_id=data.get('requested_product_id'),
         offered_service_id=data.get('offered_service_id'),
         requested_service_id=data.get('requested_service_id'),
-        status='pending',  # O status inicial deve ser sempre 'pending'
-        message=data.get('message')
+        message=data.get('message'),
+        status='pending'
     )
+    
 
-    db.session.add(new_trade)
     try:
+        db.session.add(new_trade)
         db.session.commit()
         return jsonify({'message': 'Trade proposal created successfully', 'trade_id': new_trade.id}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        # Ajustando para uma mensagem mais genérica de erro
+        return jsonify({'error': 'Failed to create trade proposal due to an unexpected error'}), 500
