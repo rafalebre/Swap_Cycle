@@ -43,6 +43,8 @@ def create_app():
     from .routes import products_blueprint
     app.register_blueprint(products_blueprint)
 
+    from .routes import services_blueprint
+    app.register_blueprint(services_blueprint)
 
     @app.route('/')
     def hello():
