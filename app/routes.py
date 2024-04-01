@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import db, User, Product, ProductCategory, Service, ServiceCategory
+from .models import db, User, Product, ProductCategory, Service, ServiceCategory, Trade
 from sqlalchemy.exc import IntegrityError
 
 # Criação do Blueprint
 products_blueprint = Blueprint('products', __name__)
 services_blueprint = Blueprint('services', __name__)
+trades_blueprint = Blueprint('trades', __name__)
 
 @products_blueprint.route('/products', methods=['POST'])
 @jwt_required()
@@ -171,3 +172,35 @@ def delete_service(service_id):
     db.session.delete(service)
     db.session.commit()
     return jsonify({"message": "Service deleted successfully"}), 200
+
+
+
+@trades_blueprint.route('/trades', methods=['POST'])
+@jwt_required()
+def create_trade():
+    user_id = get_jwt_identity()  # Assumindo que o identity é o ID do usuário
+    data = request.get_json()
+
+    # Validação básica dos dados de entrada
+    if not all(key in data for key in ('receiver_user_id', 'status')):
+        return jsonify({'error': 'Missing data for required fields'}), 400
+
+    # Criação do objeto Trade
+    new_trade = Trade(
+        proposer_user_id=user_id,
+        receiver_user_id=data['receiver_user_id'],
+        offered_product_id=data.get('offered_product_id'),
+        requested_product_id=data.get('requested_product_id'),
+        offered_service_id=data.get('offered_service_id'),
+        requested_service_id=data.get('requested_service_id'),
+        status='pending',  # O status inicial deve ser sempre 'pending'
+        message=data.get('message')
+    )
+
+    db.session.add(new_trade)
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Trade proposal created successfully', 'trade_id': new_trade.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

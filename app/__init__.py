@@ -46,6 +46,9 @@ def create_app():
     from .routes import services_blueprint
     app.register_blueprint(services_blueprint)
 
+    from .routes import trades_blueprint
+    app.register_blueprint(trades_blueprint, url_prefix='/api')
+
     @app.route('/')
     def hello():
         return "Hello, Flask!"
