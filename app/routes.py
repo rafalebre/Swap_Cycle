@@ -266,22 +266,37 @@ def decline_trade(trade_id):
 @jwt_required()
 def cancel_trade(trade_id):
     email = get_jwt_identity()
-    
+    print(f"Email from JWT: {email}")  # Imprime o email obtido do JWT para depuração
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        print(f"User ID: {user.id}")  # Imprime o ID do usuário encontrado
+    else:
+        print("User not found")
+        return jsonify({'error': 'User not found'}), 404
+
     trade = Trade.query.get(trade_id)
-    if trade is None:
+    if trade:
+        print(f"Trade proposer_user_id: {trade.proposer_user_id}")  # Imprime o proposer_user_id da trade
+    else:
+        print("Trade not found")
         return jsonify({'error': 'Trade not found'}), 404
-    
-    # Ajuste: Comparando o e-mail do JWT diretamente com o proposer_user_id armazenado como e-mail.
-    if trade.proposer_user_id != email:
+
+    # Comparando o proposer_user_id da trade com o ID do usuário para autorização
+    if trade.proposer_user_id != user.id:
+        print("Unauthorized to cancel this trade")  # Imprime uma mensagem para depuração quando a autorização falha
         return jsonify({'error': 'Unauthorized to cancel this trade'}), 403
-    
+
     if trade.status != 'pending':
+        print(f"Trade status: {trade.status}")  # Imprime o status da trade para depuração
         return jsonify({'error': 'Trade cannot be cancelled as it is no longer pending'}), 400
 
     try:
         db.session.delete(trade)
         db.session.commit()
+        print("Trade cancelled successfully")  # Confirmação de sucesso
         return jsonify({'message': 'Trade cancelled successfully'}), 200
     except Exception as e:
         db.session.rollback()
+        print(f"Failed to cancel trade: {e}")  # Imprime o erro se o cancelamento falhar
         return jsonify({'error': 'Failed to cancel trade'}), 500
