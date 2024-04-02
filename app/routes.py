@@ -8,6 +8,7 @@ products_blueprint = Blueprint('products', __name__)
 services_blueprint = Blueprint('services', __name__)
 trades_blueprint = Blueprint('trades', __name__)
 wishlists_blueprint = Blueprint('wishlists', __name__)
+favorites_blueprint = Blueprint('favorites', __name__)
 
 @products_blueprint.route('/products', methods=['POST'])
 @jwt_required()
@@ -360,3 +361,42 @@ def delete_wishlist_item(item_id):
     db.session.delete(wishlist_item)
     db.session.commit()
     return jsonify({'message': 'Wishlist item deleted successfully'}), 200
+
+
+@favorites_blueprint.route('/favorites', methods=['POST'])
+@jwt_required()
+def add_to_favorites():
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(email=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+    product_id = data.get('product_id')
+    service_id = data.get('service_id')
+
+    if not product_id and not service_id:
+        return jsonify({'error': 'Either product_id or service_id is required'}), 400
+
+    new_favorite = Favorite(user_id=user.id, product_id=product_id, service_id=service_id)
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify({'message': 'Added to favorites successfully', 'favorite_id': new_favorite.id}), 201
+
+
+@favorites_blueprint.route('/favorites/<int:favorite_id>', methods=['DELETE'])
+@jwt_required()
+def delete_from_favorites(favorite_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(email=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    favorite = Favorite.query.filter_by(id=favorite_id, user_id=user.id).first()
+    if not favorite:
+        return jsonify({'error': 'Favorite item not found'}), 404
+
+    db.session.delete(favorite)
+    db.session.commit()
+    return jsonify({'message': 'Favorite item deleted successfully'}), 200
