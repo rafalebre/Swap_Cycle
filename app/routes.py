@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import db, User, Product, ProductCategory, Service, ServiceCategory, Trade
+from .models import db, User, Product, ProductCategory, Service, ServiceCategory, Trade, Wishlist, Favorite
 from sqlalchemy.exc import IntegrityError
 
 # Criação do Blueprint
 products_blueprint = Blueprint('products', __name__)
 services_blueprint = Blueprint('services', __name__)
 trades_blueprint = Blueprint('trades', __name__)
+wishlists_blueprint = Blueprint('wishlists', __name__)
 
 @products_blueprint.route('/products', methods=['POST'])
 @jwt_required()
@@ -300,3 +301,62 @@ def cancel_trade(trade_id):
         db.session.rollback()
         print(f"Failed to cancel trade: {e}")  # Imprime o erro se o cancelamento falhar
         return jsonify({'error': 'Failed to cancel trade'}), 500
+
+
+@wishlists_blueprint.route('/wishlists', methods=['POST'])
+@jwt_required()
+def add_wishlist_item():
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(email=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    data = request.get_json()
+    description = data.get('description')
+    priority = data.get('priority', 1)  # Default é 1 se não especificado
+    
+    if not description:
+        return jsonify({'error': 'Description is required'}), 400
+
+    new_wishlist_item = Wishlist(user_id=user.id, description=description, priority=priority)
+    db.session.add(new_wishlist_item)
+    db.session.commit()
+    
+    return jsonify({'message': 'Wishlist item added successfully', 'item_id': new_wishlist_item.id}), 201
+
+
+@wishlists_blueprint.route('/wishlists/<int:item_id>', methods=['PUT'])
+@jwt_required()
+def update_wishlist_item(item_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(email=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    wishlist_item = Wishlist.query.filter_by(id=item_id, user_id=user.id).first()
+    if not wishlist_item:
+        return jsonify({'error': 'Wishlist item not found'}), 404
+    
+    data = request.get_json()
+    wishlist_item.description = data.get('description', wishlist_item.description)
+    wishlist_item.priority = data.get('priority', wishlist_item.priority)
+    
+    db.session.commit()
+    return jsonify({'message': 'Wishlist item updated successfully'}), 200
+
+
+@wishlists_blueprint.route('/wishlists/<int:item_id>', methods=['DELETE'])
+@jwt_required()
+def delete_wishlist_item(item_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(email=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    wishlist_item = Wishlist.query.filter_by(id=item_id, user_id=user.id).first()
+    if not wishlist_item:
+        return jsonify({'error': 'Wishlist item not found'}), 404
+    
+    db.session.delete(wishlist_item)
+    db.session.commit()
+    return jsonify({'message': 'Wishlist item deleted successfully'}), 200

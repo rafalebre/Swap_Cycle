@@ -49,6 +49,9 @@ def create_app():
     from .routes import trades_blueprint
     app.register_blueprint(trades_blueprint, url_prefix='/api')
 
+    from .routes import wishlists_blueprint
+    app.register_blueprint(wishlists_blueprint, url_prefix='/api')
+
     @app.route('/')
     def hello():
         return "Hello, Flask!"
