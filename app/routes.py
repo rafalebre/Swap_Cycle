@@ -206,3 +206,31 @@ def create_trade():
         db.session.rollback()
         # Ajustando para uma mensagem mais genérica de erro
         return jsonify({'error': 'Failed to create trade proposal due to an unexpected error'}), 500
+    
+
+@trades_blueprint.route('/trades/<int:trade_id>/accept', methods=['PUT'])
+@jwt_required()
+def accept_trade(trade_id):
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    
+    if user is None:
+        return jsonify({'error': 'User not found'}), 404
+    
+    trade = Trade.query.get(trade_id)
+    if trade is None:
+        return jsonify({'error': 'Trade not found'}), 404
+    
+    if trade.receiver_user_id != user.id:
+        return jsonify({'error': 'Unauthorized to accept this trade'}), 403
+    
+    if trade.status != 'pending':
+        return jsonify({'error': 'Trade is not in pending status'}), 400
+    
+    trade.status = 'accepted'
+    try:
+        db.session.commit()
+        return jsonify({'message': 'Trade accepted successfully'}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to accept trade'}), 500
