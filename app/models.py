@@ -87,15 +87,12 @@ class Trade(db.Model):
 class Wishlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
-    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
-    priority = db.Column(db.Integer, default=1)  # 1 a 5, conforme a sua descrição
+    description = db.Column(db.Text, nullable=False)
+    priority = db.Column(db.Integer, default=1)  
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref='wishlist')
-    product = db.relationship('Product', backref='wishlist_entries')
-    service = db.relationship('Service', backref='wishlist_entries')
-
+    
 
 class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
