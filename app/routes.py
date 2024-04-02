@@ -178,16 +178,17 @@ def delete_service(service_id):
 @trades_blueprint.route('/trades', methods=['POST'])
 @jwt_required()
 def create_trade():
-    user_id = get_jwt_identity()  # Assumindo que o identity é o ID do usuário
+    user_email = get_jwt_identity()  # Isso retorna o e-mail do usuário.
     data = request.get_json()
 
-    # Validação básica dos dados de entrada
-    if not all(key in data for key in ('receiver_user_id', )):
-        return jsonify({'error': 'Missing data for required fields'}), 400
+    # Buscando o usuário pelo e-mail para obter o ID numérico do usuário.
+    user = User.query.filter_by(email=user_email).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
 
-    # Criação do objeto Trade
+    # Usando o ID numérico do usuário para o proposer_user_id.
     new_trade = Trade(
-        proposer_user_id=user_id,
+        proposer_user_id=user.id,
         receiver_user_id=data['receiver_user_id'],
         offered_product_id=data.get('offered_product_id'),
         requested_product_id=data.get('requested_product_id'),
@@ -196,7 +197,6 @@ def create_trade():
         message=data.get('message'),
         status="pending"
     )
-    
 
     try:
         db.session.add(new_trade)
@@ -204,7 +204,6 @@ def create_trade():
         return jsonify({'message': 'Trade proposal created successfully', 'trade_id': new_trade.id}), 201
     except Exception as e:
         db.session.rollback()
-        # Ajustando para uma mensagem mais genérica de erro
         return jsonify({'error': 'Failed to create trade proposal due to an unexpected error'}), 500
     
 
@@ -261,3 +260,28 @@ def decline_trade(trade_id):
     except Exception:
         db.session.rollback()
         return jsonify({'error': 'Failed to decline trade'}), 500
+    
+
+@trades_blueprint.route('/trades/<int:trade_id>', methods=['DELETE'])
+@jwt_required()
+def cancel_trade(trade_id):
+    email = get_jwt_identity()
+    
+    trade = Trade.query.get(trade_id)
+    if trade is None:
+        return jsonify({'error': 'Trade not found'}), 404
+    
+    # Ajuste: Comparando o e-mail do JWT diretamente com o proposer_user_id armazenado como e-mail.
+    if trade.proposer_user_id != email:
+        return jsonify({'error': 'Unauthorized to cancel this trade'}), 403
+    
+    if trade.status != 'pending':
+        return jsonify({'error': 'Trade cannot be cancelled as it is no longer pending'}), 400
+
+    try:
+        db.session.delete(trade)
+        db.session.commit()
+        return jsonify({'message': 'Trade cancelled successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to cancel trade'}), 500
