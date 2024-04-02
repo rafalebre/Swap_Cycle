@@ -182,7 +182,7 @@ def create_trade():
     data = request.get_json()
 
     # Validação básica dos dados de entrada
-    if not all(key in data for key in ('receiver_user_id', 'status')):
+    if not all(key in data for key in ('receiver_user_id', )):
         return jsonify({'error': 'Missing data for required fields'}), 400
 
     # Criação do objeto Trade
@@ -194,7 +194,7 @@ def create_trade():
         offered_service_id=data.get('offered_service_id'),
         requested_service_id=data.get('requested_service_id'),
         message=data.get('message'),
-        status='pending'
+        status="pending"
     )
     
 
