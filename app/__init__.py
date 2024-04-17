@@ -5,12 +5,14 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from .config import Config
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 
 db = SQLAlchemy()
 migrate = Migrate()
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(Config)
     db.init_app(app)
     migrate.init_app(app, db)
