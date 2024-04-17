@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import LoginModal from './components/LoginModal';
 import RegisterModal from './components/RegisterModal';
 import './App.css';
+import { login, register } from './services/authService'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,23 +13,31 @@ function App() {
   const handleLoginModal = () => setShowLoginModal(!showLoginModal);
   const handleRegisterModal = () => setShowRegisterModal(!showRegisterModal);
 
-  const handleLogin = (email, password) => {
-    // Aqui você simulará o login
-    console.log(`Login attempted with email: ${email} and password: ${password}`);
-    setIsLoggedIn(true);
-    setShowLoginModal(false);
+  const handleLogin = async (email, password) => {
+    try {
+      const data = await login(email, password);
+      console.log('Login successful:', data);
+      setIsLoggedIn(true);
+      setShowLoginModal(false);
+    } catch (error) {
+      alert('Login failed: ' + error.message);
+    }
   };
 
   const handleLogout = () => {
-    // Aqui você simulará o logout
+    // Aqui simulará o logout
     console.log("Logout");
     setIsLoggedIn(false);
   };
 
-  const handleRegister = (email, username, password) => {
-    // Aqui você simulará o registro
-    console.log(`Registration attempted with email: ${email}, username: ${username}, and password: ${password}`);
-    setShowRegisterModal(false);
+  const handleRegister = async (email, username, password) => {
+    try {
+      const data = await register(email, username, password);
+      console.log('Registration successful:', data);
+      setShowRegisterModal(false);
+    } catch (error) {
+      alert('Registration failed: ' + error.message);
+    }
   };
 
   return (
