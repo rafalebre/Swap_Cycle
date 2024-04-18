@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
-  
+
   const register = async (email, username, password) => {
     try {
       if (!email || !username || !password) {
@@ -58,11 +58,9 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
-  
 
   const logout = () => {
-    console.log("Logout");
-    localStorage.removeItem("token"); // Remove o token do localStorage
+    localStorage.removeItem("token");
     setIsLoggedIn(false);
   };
 
