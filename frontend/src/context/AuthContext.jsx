@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -6,6 +6,13 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);  // Define como logado se um token for encontrado
+    }
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -20,20 +27,13 @@ export const AuthProvider = ({ children }) => {
       if (!response.ok) {
         throw new Error(data.message || 'Failed to login');
       }
+      localStorage.setItem('token', data.access_token);  // Armazena o token no localStorage
       setIsLoggedIn(true);
       console.log('Login successful:', data);
-      // Armazenar o token no localStorage ou gerenciar o estado do token aqui
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     }
-  };
-
-  const logout = () => {
-    console.log("Logout");
-    localStorage.removeItem('token'); // Remove o token do localStorage
-    setIsLoggedIn(false);
-    // Remover o token do localStorage ou limpar o estado do token
   };
 
   const register = async (email, username, password) => {
@@ -49,12 +49,19 @@ export const AuthProvider = ({ children }) => {
       if (!response.ok) {
         throw new Error(data.message || 'Failed to register');
       }
+      localStorage.setItem('token', data.access_token);  // Armazena o token no localStorage
+      setIsLoggedIn(true);
       console.log('Registration successful:', data);
-      // Opcionalmente logar o usuário imediatamente após o registro
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
     }
+  };
+
+  const logout = () => {
+    console.log("Logout");
+    localStorage.removeItem('token'); // Remove o token do localStorage
+    setIsLoggedIn(false);
   };
 
   return (
