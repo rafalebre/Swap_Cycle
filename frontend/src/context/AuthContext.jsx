@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 const AuthContext = createContext(null);
 
@@ -8,9 +8,9 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true);  // Define como logado se um token for encontrado
+      setIsLoggedIn(true); // Define como logado se um token for encontrado
     }
   }, []);
 
@@ -25,19 +25,21 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to login');
+        throw new Error(data.error || 'Login failed');
       }
-      localStorage.setItem('token', data.access_token);  // Armazena o token no localStorage
+      localStorage.setItem('token', data.access_token);
       setIsLoggedIn(true);
-      console.log('Login successful:', data);
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error:', error.message);
       throw error;
     }
   };
-
+  
   const register = async (email, username, password) => {
     try {
+      if (!email || !username || !password) {
+        throw new Error("All fields must be filled");
+      }
       const response = await fetch('http://localhost:5001/auth/register', {
         method: 'POST',
         headers: {
@@ -47,20 +49,20 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to register');
+        throw new Error(data.error || 'Registration failed');
       }
-      localStorage.setItem('token', data.access_token);  // Armazena o token no localStorage
+      localStorage.setItem('token', data.access_token);
       setIsLoggedIn(true);
-      console.log('Registration successful:', data);
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration error:', error.message);
       throw error;
     }
   };
+  
 
   const logout = () => {
     console.log("Logout");
-    localStorage.removeItem('token'); // Remove o token do localStorage
+    localStorage.removeItem("token"); // Remove o token do localStorage
     setIsLoggedIn(false);
   };
 

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'; // Importando useAuth
 const LoginModal = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth(); // Usando login do contexto
 
   const handleLogin = async (e) => {
@@ -12,7 +13,7 @@ const LoginModal = ({ onClose }) => {
       await login(email, password);
       onClose(); // Fechar modal após login
     } catch (error) {
-      alert('Login failed: ' + error.message);
+      setErrorMessage(error.message)
     }
   };
 
@@ -23,6 +24,7 @@ const LoginModal = ({ onClose }) => {
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <label>Password:</label>
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        {errorMessage && <p className="error">{errorMessage}</p>}
         <button type="submit">Login</button>
         <button type="button" onClick={onClose}>Close</button>
       </form>
