@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Importando useAuth
 
 const RegisterModal = ({ onClose }) => {
@@ -6,18 +7,20 @@ const RegisterModal = ({ onClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('');
   const { register } = useAuth(); // Usando register do contexto
+  const navigate = useNavigate(); // Adicionando useNavigate para redirecionamento
 
   const handleRegister = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setErrorMessage("Passwords do not match!");
       return;
     }
     try {
       await register(email, username, password);
       onClose(); // Fechar modal após registro
+      navigate('/update-info'); // Navegação para a página Update Info
     } catch (error) {
       setErrorMessage(error.message);
     }

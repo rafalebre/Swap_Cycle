@@ -12,7 +12,7 @@ import { useAuth } from './context/AuthContext';
 function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const { isLoggedIn, login, logout } = useAuth();
+  const { isLoggedIn, login, logout, register } = useAuth();
 
   const handleLoginModal = () => setShowLoginModal(!showLoginModal);
   const handleRegisterModal = () => setShowRegisterModal(!showRegisterModal);
@@ -30,8 +30,8 @@ function App() {
         <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate replace to="/" />} />
         <Route path="/update-info" element={isLoggedIn ? <UserInfo /> : <Navigate replace to="/" />} />
       </Routes>
-      {showLoginModal && <LoginModal onClose={handleLoginModal} onLogin={login} />}
-      {showRegisterModal && <RegisterModal onClose={handleRegisterModal} onRegister={() => {}} />}
+      {showLoginModal && <LoginModal onClose={handleLoginModal} onLogin={login} navigatePath="/dashboard" />}
+      {showRegisterModal && <RegisterModal onClose={handleRegisterModal} onRegister={register} navigatePath="/update-info" />}
     </Router>
   );
 }

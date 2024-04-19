@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Importando useAuth
 
 const LoginModal = ({ onClose }) => {
@@ -6,14 +7,16 @@ const LoginModal = ({ onClose }) => {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth(); // Usando login do contexto
+  const navigate = useNavigate(); // Adicionando useNavigate para redirecionamento
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       await login(email, password);
       onClose(); // Fechar modal após login
+      navigate('/dashboard'); // Navegação para o Dashboard
     } catch (error) {
-      setErrorMessage(error.message)
+      setErrorMessage(error.message);
     }
   };
 

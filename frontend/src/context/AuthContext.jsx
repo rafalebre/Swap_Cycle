@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true); // Define como logado se um token for encontrado
+      setIsLoggedIn(true);
     }
   }, []);
 
@@ -37,9 +37,6 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, username, password) => {
     try {
-      if (!email || !username || !password) {
-        throw new Error("All fields must be filled");
-      }
       const response = await fetch('http://localhost:5001/auth/register', {
         method: 'POST',
         headers: {
@@ -70,3 +67,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;
