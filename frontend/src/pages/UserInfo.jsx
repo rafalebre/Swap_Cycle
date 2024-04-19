@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getUserInfo, updateUserInfo } from '../services/authService'; 
-import {useNavigate} from 'react-router-dom';
+import { getUserInfo, updateUserInfo } from '../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 const UserInfo = () => {
     const [userInfo, setUserInfo] = useState({
@@ -12,18 +12,20 @@ const UserInfo = () => {
         profile_picture: '',
         address: ''
     });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate(); // Hook para navegação
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const userData = await getUserInfo();
-                setUserInfo(userData);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchData();
+        setLoading(true);
+        getUserInfo().then(data => {
+            setUserInfo(data);
+            setLoading(false);
+        }).catch(error => {
+            console.error('Failed to fetch user data:', error);
+            setError('Failed to load user data');
+            setLoading(false);
+        });
     }, []);
 
     const handleChange = (e) => {
@@ -35,18 +37,26 @@ const UserInfo = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
+
         try {
             const updateData = await updateUserInfo(userInfo);
             console.log('Update Success:', updateData.message);
-            navigate('/dashboard');
+            navigate('/dashboard'); // Navigate para dashboard após atualização
         } catch (error) {
-            console.error(error);
+            console.error('Update failed:', error);
+            setError('Update failed: ' + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleGoToDashboard = () => {
-      navigate('/dashboard'); // Função para navegar diretamente para dashboard
-  };
+        navigate('/dashboard'); // Função para navegar diretamente para dashboard
+    };
+
+    if (loading) return <div>Loading...</div>; // Exibe mensagem de carregamento
 
     return (
         <form onSubmit={handleSubmit}>
@@ -78,8 +88,9 @@ const UserInfo = () => {
                 <label>Address:</label>
                 <input type="text" name="address" value={userInfo.address} onChange={handleChange} />
             </div>
-            <button type="submit">Update Info</button>
-            <button type="button" onClick={handleGoToDashboard}>Go to Dashboard</button>
+            {error && <div style={{ color: 'red' }}>{error}</div>}
+            <button type="submit" disabled={loading}>Update Info</button>
+            <button type="button" onClick={handleGoToDashboard} disabled={loading}>Go to Dashboard</button>
         </form>
     );
 }
