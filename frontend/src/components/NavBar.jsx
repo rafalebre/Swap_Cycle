@@ -1,7 +1,9 @@
-
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Importação necessária para a navegação
 
 const NavBar = ({ isLoggedIn, onLogin, onLogout, onRegister }) => {
+  const navigate = useNavigate(); // Hook para a navegação
+
   return (
     <nav>
       <div className="logo">Logo</div>
@@ -9,7 +11,7 @@ const NavBar = ({ isLoggedIn, onLogin, onLogout, onRegister }) => {
         {isLoggedIn ? (
           <>
             <button onClick={onLogout}>Logout</button>
-            <button>My Info</button>
+            <button onClick={() => navigate('/update-info')}>My Info</button>  
           </>
         ) : (
           <>
