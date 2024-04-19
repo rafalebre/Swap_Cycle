@@ -95,3 +95,21 @@ def update_user():
     return jsonify({"message": "User information updated successfully"}), 200
 
 
+@auth_blueprint.route('/user', methods=['GET'])
+@jwt_required()
+def get_user():
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    
+    if user is None:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({
+        "email": user.email,
+        "username": user.username,
+        "name": user.name,
+        "surname": user.surname,
+        "birth_date": user.birth_date.strftime("%Y-%m-%d") if user.birth_date else None,
+        "profile_picture": user.profile_picture,
+        "address": user.address
+    }), 200

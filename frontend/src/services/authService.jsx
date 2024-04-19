@@ -42,3 +42,45 @@ export const register = async (email, username, password) => {
     throw error;
   }
 };
+
+
+export const getUserInfo = async () => {
+  try {
+      const response = await fetch(API_URL + 'auth/user', {
+          method: 'GET',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+      });
+      const data = await response.json();
+      if (!response.ok) {
+          throw new Error(data.error);
+      }
+      return data;
+  } catch (error) {
+      console.error('Fetch user info error:', error);
+      throw error;
+  }
+};
+
+
+export const updateUserInfo = async (userData) => {
+  try {
+      const response = await fetch(API_URL + 'auth/update', {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(userData)
+      });
+      const data = await response.json();
+      if (!response.ok) {
+          throw new Error(data.error);
+      }
+      return data;
+  } catch (error) {
+      console.error('Update user info error:', error);
+      throw error;
+  }
+};
