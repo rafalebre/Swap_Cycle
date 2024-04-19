@@ -8,10 +8,19 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setIsLoggedIn(true);
-    }
+    const checkToken = () => {
+      const token = localStorage.getItem("token");
+      setIsLoggedIn(!!token);
+    };
+
+    // Checa o token no carregamento
+    checkToken();
+
+    // Adiciona ouvinte para mudanças na localStorage
+    window.addEventListener('storage', checkToken);
+
+    // Remove o ouvinte ao desmontar o componente
+    return () => window.removeEventListener('storage', checkToken);
   }, []);
 
   const login = async (email, password) => {

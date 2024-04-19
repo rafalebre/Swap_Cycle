@@ -17,6 +17,9 @@ function App() {
   const handleLoginModal = () => setShowLoginModal(!showLoginModal);
   const handleRegisterModal = () => setShowRegisterModal(!showRegisterModal);
 
+  // Função para verificar se o usuário está logado com base no token
+  const isUserLoggedIn = () => localStorage.getItem("token") !== null;
+
   return (
     <Router>
       <NavBar
@@ -27,8 +30,8 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate replace to="/" />} />
-        <Route path="/update-info" element={isLoggedIn ? <UserInfo /> : <Navigate replace to="/" />} />
+        <Route path="/dashboard" element={isUserLoggedIn() ? <Dashboard /> : <Navigate replace to="/" />} />
+        <Route path="/update-info" element={isUserLoggedIn() ? <UserInfo /> : <Navigate replace to="/" />} />
       </Routes>
       {showLoginModal && <LoginModal onClose={handleLoginModal} onLogin={login} navigatePath="/dashboard" />}
       {showRegisterModal && <RegisterModal onClose={handleRegisterModal} onRegister={register} navigatePath="/update-info" />}
