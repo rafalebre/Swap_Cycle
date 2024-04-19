@@ -29,7 +29,7 @@ function App() {
         onRegister={() => setShowRegisterModal(true)}
       />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={isUserLoggedIn() ? <Navigate replace to="/dashboard" /> : <Home />} />
         <Route path="/dashboard" element={isUserLoggedIn() ? <Dashboard /> : <Navigate replace to="/" />} />
         <Route path="/update-info" element={isUserLoggedIn() ? <UserInfo /> : <Navigate replace to="/" />} />
       </Routes>
