@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getUserInfo, updateUserInfo } from '../services/authService'; // Certifique-se de que os caminhos estão corretos
+import { getUserInfo, updateUserInfo } from '../services/authService'; 
+import {useNavigate} from 'react-router-dom';
 
 const UserInfo = () => {
     const [userInfo, setUserInfo] = useState({
@@ -11,6 +12,7 @@ const UserInfo = () => {
         profile_picture: '',
         address: ''
     });
+    const navigate = useNavigate(); // Hook para navegação
 
     useEffect(() => {
         const fetchData = async () => {
@@ -36,10 +38,15 @@ const UserInfo = () => {
         try {
             const updateData = await updateUserInfo(userInfo);
             console.log('Update Success:', updateData.message);
+            navigate('/dashboard');
         } catch (error) {
             console.error(error);
         }
     };
+
+    const handleGoToDashboard = () => {
+      navigate('/dashboard'); // Função para navegar diretamente para dashboard
+  };
 
     return (
         <form onSubmit={handleSubmit}>
@@ -72,6 +79,7 @@ const UserInfo = () => {
                 <input type="text" name="address" value={userInfo.address} onChange={handleChange} />
             </div>
             <button type="submit">Update Info</button>
+            <button type="button" onClick={handleGoToDashboard}>Go to Dashboard</button>
         </form>
     );
 }
