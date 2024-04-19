@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export const useAuth = () => useContext(AuthContext);
 
-const API_URL = process.env.REACT_APP_API_URL; // Add this line
+const API_URL = process.env.REACT_APP_API_URL; 
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, { // Modify this line
+      const response = await fetch(`${API_URL}/auth/login`, { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, username, password) => {
     try {
-      const response = await fetch(`${API_URL}/auth/register`, { // Modify this line
+      const response = await fetch(`${API_URL}/auth/register`, { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
