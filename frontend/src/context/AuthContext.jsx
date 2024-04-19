@@ -1,8 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
+
 const AuthContext = createContext(null);
 
 export const useAuth = () => useContext(AuthContext);
+
+const API_URL = process.env.REACT_APP_API_URL; // Add this line
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5001/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, { // Modify this line
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +49,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, username, password) => {
     try {
-      const response = await fetch('http://localhost:5001/auth/register', {
+      const response = await fetch(`${API_URL}/auth/register`, { // Modify this line
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
