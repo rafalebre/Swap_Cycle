@@ -7,7 +7,7 @@
 
 body, html {
   height: 100%;
-  font-family: 'Arial', sans-serif; /* Escolha a fonte que preferir */
+  font-family: 'Arial', sans-serif; /* Escolher a fonte que preferir, DEPOIS!!! */
   background-color: #f4f4f4; /* Cor de fundo clara */
   color: #333; /* Cor de texto padrão */
 }
