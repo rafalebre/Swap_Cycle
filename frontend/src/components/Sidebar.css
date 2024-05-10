@@ -1,0 +1,27 @@
+
+.sidebar {
+    width: 25%;
+    background-color: #333; /* Cinza grafite */
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar button {
+    width: 80%;
+    padding: 10px;
+    background-color: #ff6347; /* Cor salmão para botões */
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.sidebar button:hover {
+    background-color: #e5533b; /* Escurecer no hover */
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import './ContentArea.css';
 
 function ContentArea({ activeView }) {
     const renderContent = () => {

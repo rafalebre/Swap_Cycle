@@ -1,0 +1,21 @@
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .content-area {
+        order: -1; /* Coloca o conteúdo acima da sidebar em telas pequenas */
+    }
+}
