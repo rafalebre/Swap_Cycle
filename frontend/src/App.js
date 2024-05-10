@@ -7,6 +7,7 @@ import UserInfo from './pages/UserInfo';
 import LoginModal from './components/LoginModal';
 import RegisterModal from './components/RegisterModal';
 import NavBar from './components/NavBar';
+import Footer from './components/Footer';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/dashboard" element={isUserLoggedIn() ? <Dashboard /> : <Navigate replace to="/" />} />
         <Route path="/update-info" element={isUserLoggedIn() ? <UserInfo /> : <Navigate replace to="/" />} />
       </Routes>
+      <Footer />
       {showLoginModal && <LoginModal onClose={handleLoginModal} onLogin={login} navigatePath="/dashboard" />}
       {showRegisterModal && <RegisterModal onClose={handleRegisterModal} onRegister={register} navigatePath="/update-info" />}
     </Router>

@@ -1,7 +1,7 @@
 
 .sidebar {
     width: 25%;
-    background-color: #333; /* Cinza grafite */
+    background-color: #676666; /* Cinza grafite */
     color: white;
     padding: 20px;
     display: flex;
@@ -24,4 +24,21 @@
 
 .sidebar button:hover {
     background-color: #e5533b; /* Escurecer no hover */
+}
+
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        align-items: center;
+    }
+
+    .sidebar button {
+        flex: 1; /* Cresce uniformemente ocupando o espaço disponível */
+        min-width: 100px; /* Garante um mínimo de largura */
+        min-height: 60px;
+        padding: 10px 0; /* Padding uniforme */
+    }
 }

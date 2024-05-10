@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Importação necessária para a navegação
+import "./NavBar.css";
 
 const NavBar = ({ isLoggedIn, onLogin, onLogout, onRegister }) => {
   const navigate = useNavigate(); // Hook para a navegação

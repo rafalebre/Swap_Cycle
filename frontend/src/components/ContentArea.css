@@ -1,7 +1,11 @@
 
 .content-area {
     flex-grow: 1;
+    overflow: auto; /* Adiciona rolagem se necessário */
     background-color: #ccc; /* Cinza claro para contraste */
     padding: 20px;
     box-shadow: -5px 0 10px rgba(0, 0, 0, 0.1); /* Sombra para efeito visual */
+    min-height: 100px; /* Garante que o área de conteúdo seja visível */
+    visibility: visible; /* Garante que o conteúdo seja visível */
+    width: 100%; /* Garante que ocupe o espaço necessário */
 }

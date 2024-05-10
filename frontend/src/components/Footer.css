@@ -1,0 +1,18 @@
+/* Footer.css */
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #333; /* Cor de fundo cinza grafite como a navbar */
+    color: white;
+    font-size: 16px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+span {
+    padding: 0 3px;
+}

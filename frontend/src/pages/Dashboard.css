@@ -1,21 +1,15 @@
-
+/* Dashboard.css */
 .dashboard {
     display: flex;
-    min-height: 100vh;
+    flex-direction: row; /* Garante orientação correta */
+    min-height: calc(100vh - 60px); /* Subtrai a altura da NavBar */
+    width: 100%; /* Garante que o dashboard ocupe toda a largura */
+    margin-top: 60px; /* Empurra o dashboard para começar abaixo da NavBar */
 }
 
 @media (max-width: 768px) {
     .dashboard {
         flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        flex-direction: row;
-        overflow-x: auto;
-    }
-
-    .content-area {
-        order: -1; /* Coloca o conteúdo acima da sidebar em telas pequenas */
+        margin-top: 60px; /* Mantém o espaço no topo em telas menores */
     }
 }

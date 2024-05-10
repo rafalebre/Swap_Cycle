@@ -5,7 +5,7 @@ function ContentArea({ activeView }) {
     const renderContent = () => {
         switch (activeView) {
             case 'registerProduct':
-                return <div>Formulário de registro de produto aqui</div>;
+                return <div><p>Formulário de registro de produto aqui</p></div>;
             case 'registerService':
                 return <div>Formulário de registro de serviço aqui</div>;
             case 'search':
