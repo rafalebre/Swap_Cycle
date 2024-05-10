@@ -1,12 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react';
+import Sidebar from '../components/Sidebar';
+import ContentArea from '../components/ContentArea';
 
-const Dashboard = () => {
-  return (
-    <div>
-        <h1>Dashboard</h1>
-        <p>Welcome to your Dashboard</p>
-    </div>
-  )
+function Dashboard() {
+    const [activeView, setActiveView] = useState('home'); // Home can be replaced as needed
+
+    return (
+        <div className="dashboard">
+            <Sidebar setActiveView={setActiveView} />
+            <ContentArea activeView={activeView} />
+        </div>
+    );
 }
 
-export default Dashboard
+export default Dashboard;
