@@ -12,6 +12,7 @@ const UserInfo = () => {
         profile_picture: '',
         address: ''
     });
+    const [initialAddress, setInitialAddress] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate(); // Hook para navegação
@@ -20,6 +21,7 @@ const UserInfo = () => {
         setLoading(true);
         getUserInfo().then(data => {
             setUserInfo(data);
+            setInitialAddress(data.address); // Armazena o endereço inicial
             setLoading(false);
         }).catch(error => {
             console.error('Failed to fetch user data:', error);
@@ -27,12 +29,14 @@ const UserInfo = () => {
             setLoading(false);
         });
     }, []);
+
     const handleChange = (e) => {
         setUserInfo({
             ...userInfo,
             [e.target.name]: e.target.value
         });
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -78,11 +82,11 @@ const UserInfo = () => {
                 <input type="date" name="birth_date" value={userInfo.birth_date} onChange={handleChange} />
             </div>
             <div>
-                <label>Profile Picture URL:</label>
-                <input type="text" name="profile_picture" value={userInfo.profile_picture} onChange={handleChange} />
+                <label>Registered Address:</label>
+                <span>{initialAddress || "You don't have an address registered yet."}</span>
             </div>
             <div>
-                <label>Address:</label>
+                <label>New Address:</label>
                 <input type="text" name="address" value={userInfo.address} onChange={handleChange} />
             </div>
             {error && <div style={{ color: 'red' }}>{error}</div>}
