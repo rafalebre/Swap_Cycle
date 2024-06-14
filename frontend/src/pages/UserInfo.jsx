@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getUserInfo, updateUserInfo } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
-import GoogleMapsComponent from '../components/GoogleMapsComponent'; // Importa o componente do Google Maps
 
 const UserInfo = () => {
     const [userInfo, setUserInfo] = useState({
@@ -13,7 +12,6 @@ const UserInfo = () => {
         profile_picture: '',
         address: ''
     });
-    const [initialAddress, setInitialAddress] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate(); // Hook para navegação
@@ -22,7 +20,6 @@ const UserInfo = () => {
         setLoading(true);
         getUserInfo().then(data => {
             setUserInfo(data);
-            setInitialAddress(data.address); // Armazena o endereço inicial
             setLoading(false);
         }).catch(error => {
             console.error('Failed to fetch user data:', error);
@@ -30,22 +27,12 @@ const UserInfo = () => {
             setLoading(false);
         });
     }, []);
-
     const handleChange = (e) => {
         setUserInfo({
             ...userInfo,
             [e.target.name]: e.target.value
         });
     };
-
-    const handlePlaceSelected = (place) => {
-        // Atualiza o endereço no estado quando um endereço é selecionado no mapa
-        setUserInfo({
-            ...userInfo,
-            address: place.formatted_address
-        });
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -91,14 +78,12 @@ const UserInfo = () => {
                 <input type="date" name="birth_date" value={userInfo.birth_date} onChange={handleChange} />
             </div>
             <div>
-                <label>Registered Address:</label>
-                <span>{initialAddress || "You don't have an address registered yet."}</span>
+                <label>Profile Picture URL:</label>
+                <input type="text" name="profile_picture" value={userInfo.profile_picture} onChange={handleChange} />
             </div>
             <div>
-                <label>New Address:</label>
+                <label>Address:</label>
                 <input type="text" name="address" value={userInfo.address} onChange={handleChange} />
-                {/* Integração do Google Maps aqui */}
-                <GoogleMapsComponent onPlaceSelected={handlePlaceSelected} />
             </div>
             {error && <div style={{ color: 'red' }}>{error}</div>}
             <button type="submit" disabled={loading}>Update Info</button>
