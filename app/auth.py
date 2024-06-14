@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from . import db
 from .models import User
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -57,8 +58,6 @@ def login():
         return jsonify(access_token=access_token), 200
 
     return jsonify({"error": "Invalid credentials"}), 401
-
-from datetime import datetime
 
 @auth_blueprint.route('/update', methods=['PUT'])
 @jwt_required()

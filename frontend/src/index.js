@@ -1,20 +1,26 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client'; // Importa createRoot - React 18 ou superior
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './context/AuthContext';
+import { LoadScript } from '@react-google-maps/api';
 
-const container = document.getElementById('root'); // Obtém o container
-const root = createRoot(container); // Cria o root
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+const libraries = ['places']; // Defina as bibliotecas aqui para evitar redefinições
+
+const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </LoadScript>
   </React.StrictMode>
 );
 
-// Medir a performance do app - passar o console.log para ver a performance no console
 reportWebVitals();

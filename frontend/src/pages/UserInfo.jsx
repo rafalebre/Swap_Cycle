@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUserInfo, updateUserInfo } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
+import MyGoogleMapComponent from '../components/MyGoogleMapComponent';
 
 const UserInfo = () => {
     const [userInfo, setUserInfo] = useState({
@@ -85,6 +86,7 @@ const UserInfo = () => {
                 <label>Address:</label>
                 <input type="text" name="address" value={userInfo.address} onChange={handleChange} />
             </div>
+            <MyGoogleMapComponent />
             {error && <div style={{ color: 'red' }}>{error}</div>}
             <button type="submit" disabled={loading}>Update Info</button>
             <button type="button" onClick={handleGoToDashboard} disabled={loading}>Go to Dashboard</button>
