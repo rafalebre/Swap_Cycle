@@ -11,6 +11,8 @@ class User(db.Model):
     birth_date = db.Column(db.DateTime, nullable=True)
     profile_picture = db.Column(db.String(255), nullable=True)
     address = db.Column(db.String(255), nullable=True)
+    latitude = db.Column(db.Float, nullable=True, index=True)  # Added latitude field
+    longitude = db.Column(db.Float, nullable=True, index=True)  # Added longitude field
     registered_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     products = db.relationship('Product', backref='user', lazy='dynamic')
     services = db.relationship('Service', backref='user', lazy='dynamic')
@@ -38,6 +40,8 @@ class Product(db.Model):
     estimated_value = db.Column(db.Float, nullable=True)
     images = db.Column(db.Text, nullable=True)
     location = db.Column(db.String(255), nullable=True)
+    latitude = db.Column(db.Float, nullable=True, index=True)  # Added latitude field
+    longitude = db.Column(db.Float, nullable=True, index=True)  # Added longitude field
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ServiceCategory(db.Model):
@@ -62,6 +66,8 @@ class Service(db.Model):
     estimated_value = db.Column(db.Float, nullable=True)
     images = db.Column(db.Text, nullable=True)
     location = db.Column(db.String(255), nullable=True)
+    latitude = db.Column(db.Float, nullable=True, index=True)  # Added latitude field
+    longitude = db.Column(db.Float, nullable=True, index=True)  # Added longitude field
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
 
