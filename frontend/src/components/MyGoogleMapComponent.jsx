@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { GoogleMap, Marker, StandaloneSearchBox } from '@react-google-maps/api';
 
 const containerStyle = {
-  width: '50vw',
-  height: '50vh'
+  width: '30vw',
+  height: '30vh'
 };
 
 function MyGoogleMapComponent({ googleMapsApiKey, libraries }) {
