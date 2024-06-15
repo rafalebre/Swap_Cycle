@@ -9,9 +9,7 @@ import RegisterModal from './components/RegisterModal';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import { useAuth } from './context/AuthContext';
-import { LoadScript } from '@react-google-maps/api';
 
-const libraries = ["places"]; // Define as bibliotecas fora do componente
 
 function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -23,10 +21,6 @@ function App() {
   const isUserLoggedIn = () => localStorage.getItem("token") !== null;
 
   return (
-    <LoadScript
-      googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-      libraries={libraries} // Usa a constante definida fora do componente
-    >
       <Router>
         <NavBar
           isLoggedIn={isLoggedIn}
@@ -43,7 +37,6 @@ function App() {
         {showLoginModal && <LoginModal onClose={handleLoginModal} onLogin={login} navigatePath="/dashboard" />}
         {showRegisterModal && <RegisterModal onClose={handleRegisterModal} onRegister={register} navigatePath="/update-info" />}
       </Router>
-    </LoadScript>
   );
 }
 
