@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getUserInfo, updateUserInfo } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
-import MyGoogleMapComponent from '../components/MyGoogleMapComponent';
 
 const UserInfo = () => {
     const [userInfo, setUserInfo] = useState({
@@ -36,13 +35,6 @@ const UserInfo = () => {
         });
     };
 
-    const handlePlaceSelected = (place) => {
-        // Atualiza o endereço no estado quando um endereço é selecionado no mapa
-        setUserInfo({
-            ...userInfo,
-            address: place.formatted_address
-        });
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -92,8 +84,6 @@ const UserInfo = () => {
             <div>
                 <label>New Address:</label>
                 <input type="text" name="address" value={userInfo.address} onChange={handleChange} />
-                {/* Integração do Google Maps aqui */}
-                <MyGoogleMapComponent onPlaceSelected={handlePlaceSelected} />
             </div>
             {error && <div style={{ color: 'red' }}>{error}</div>}
             <button type="submit" disabled={loading}>Update Info</button>
