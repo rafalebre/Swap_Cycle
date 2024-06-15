@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUserInfo, updateUserInfo } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
+import MyGoogleMapComponent from '../components/MyGoogleMapComponent'; // Importa o componente do Google Maps
 
 const UserInfo = () => {
     const [userInfo, setUserInfo] = useState({
@@ -16,6 +17,7 @@ const UserInfo = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate(); // Hook para navegação
+
     useEffect(() => {
         setLoading(true);
         getUserInfo().then(data => {
@@ -28,13 +30,13 @@ const UserInfo = () => {
             setLoading(false);
         });
     }, []);
+
     const handleChange = (e) => {
         setUserInfo({
             ...userInfo,
             [e.target.name]: e.target.value
         });
     };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -51,10 +53,13 @@ const UserInfo = () => {
             setLoading(false);
         }
     };
+
     const handleGoToDashboard = () => {
         navigate('/dashboard'); // Função para navegar diretamente para dashboard
     };
+
     if (loading) return <div>Loading...</div>; // Exibe mensagem de carregamento
+
     return (
         <form onSubmit={handleSubmit}>
             <div>
@@ -84,6 +89,7 @@ const UserInfo = () => {
             <div>
                 <label>New Address:</label>
                 <input type="text" name="address" value={userInfo.address} onChange={handleChange} />
+                <MyGoogleMapComponent googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} />
             </div>
             {error && <div style={{ color: 'red' }}>{error}</div>}
             <button type="submit" disabled={loading}>Update Info</button>

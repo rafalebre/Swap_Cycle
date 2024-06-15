@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Marker, StandaloneSearchBox } from '@react-google-maps/api';
+import { Marker } from '@react-google-maps/api';
 import { Loader } from "@googlemaps/js-api-loader";
 
 const containerStyle = {
@@ -10,6 +10,7 @@ const containerStyle = {
 function MyGoogleMapComponent({ googleMapsApiKey }) {
   const [center, setCenter] = useState({ lat: -34.397, lng: 150.644 });
   const [map, setMap] = useState(null);
+  const [librariesLoaded, setLibrariesLoaded] = useState(false);
   const searchBoxRef = useRef(null);
   const mapRef = useRef(null);
 
@@ -27,6 +28,7 @@ function MyGoogleMapComponent({ googleMapsApiKey }) {
         zoom: 10
       });
       setMap(initialMap);
+      setLibrariesLoaded(true);
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -37,35 +39,34 @@ function MyGoogleMapComponent({ googleMapsApiKey }) {
         () => console.error('Error fetching your location')
       );
     });
-  }, [googleMapsApiKey, center]); // Adicionando 'center' às dependências
+  }, [googleMapsApiKey, center]);
 
   useEffect(() => {
-    if (map) {
+    if (map && librariesLoaded) {
       const searchBox = new window.google.maps.places.SearchBox(searchBoxRef.current);
       map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
       searchBox.addListener('places_changed', () => {
         const places = searchBox.getPlaces();
-        if (places && places.length === 1) {
+        if (places && places.length) {
           const loc = { lat: places[0].geometry.location.lat(), lng: places[0].geometry.location.lng() };
           setCenter(loc);
           map.panTo(loc);
         }
       });
     }
-  }, [map]);
+  }, [map, librariesLoaded]);
 
   return (
     <>
       <div ref={mapRef} style={containerStyle} />
-      <StandaloneSearchBox
-        onLoad={ref => searchBoxRef.current = ref}
-      >
+      {librariesLoaded && (
         <input
+          ref={searchBoxRef}
           type="text"
           placeholder="Search location"
           style={{ boxSizing: 'border-box', border: '1px solid transparent', width: '240px', height: '32px', padding: '0 12px', borderRadius: '3px', boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)', fontSize: '14px', outline: 'none', textOverflow: 'ellipses' }}
         />
-      </StandaloneSearchBox>
+      )}
       {map && <Marker position={center} map={map} />}
     </>
   );
