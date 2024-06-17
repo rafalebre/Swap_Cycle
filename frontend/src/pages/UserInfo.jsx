@@ -17,6 +17,7 @@ const UserInfo = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate(); // Hook para navegação
+
   useEffect(() => {
     setLoading(true);
     getUserInfo()
@@ -30,7 +31,19 @@ const UserInfo = () => {
         setError("Failed to load user data");
         setLoading(false);
       });
+
+    // Adiciona um ouvinte para o evento de seleção de endereço
+    const handleAddressSelect = (event) => {
+      setUserInfo(userInfo => ({ ...userInfo, address: event.detail.address }));
+    };
+
+    window.addEventListener('placeSelected', handleAddressSelect);
+
+    return () => {
+      window.removeEventListener('placeSelected', handleAddressSelect);
+    };
   }, []);
+
   const handleChange = (e) => {
     setUserInfo({
       ...userInfo,
@@ -53,57 +66,34 @@ const UserInfo = () => {
       setLoading(false);
     }
   };
+
   const handleGoToDashboard = () => {
     navigate("/dashboard"); // Função para navegar diretamente para dashboard
   };
+
   if (loading) return <div>Loading...</div>; // Exibe mensagem de carregamento
+
   return (
     <form onSubmit={handleSubmit}>
       <div>
         <label>Email:</label>
-        <input
-          type="email"
-          name="email"
-          value={userInfo.email}
-          onChange={handleChange}
-          disabled
-        />
+        <input type="email" name="email" value={userInfo.email} onChange={handleChange} disabled />
       </div>
       <div>
         <label>Username:</label>
-        <input
-          type="text"
-          name="username"
-          value={userInfo.username}
-          onChange={handleChange}
-        />
+        <input type="text" name="username" value={userInfo.username} onChange={handleChange} />
       </div>
       <div>
         <label>Name:</label>
-        <input
-          type="text"
-          name="name"
-          value={userInfo.name}
-          onChange={handleChange}
-        />
+        <input type="text" name="name" value={userInfo.name} onChange={handleChange} />
       </div>
       <div>
         <label>Surname:</label>
-        <input
-          type="text"
-          name="surname"
-          value={userInfo.surname}
-          onChange={handleChange}
-        />
+        <input type="text" name="surname" value={userInfo.surname} onChange={handleChange} />
       </div>
       <div>
         <label>Birth Date:</label>
-        <input
-          type="date"
-          name="birth_date"
-          value={userInfo.birth_date}
-          onChange={handleChange}
-        />
+        <input type="date" name="birth_date" value={userInfo.birth_date} onChange={handleChange} />
       </div>
       <div>
         <label>Registered Address:</label>
@@ -112,7 +102,7 @@ const UserInfo = () => {
         </span>
       </div>
       <div>
-        <label>New Address:</label>
+        <label>New Address (Enter manually or use the autocomplete on the Map) :</label>
         <input
           type="text"
           name="address"
