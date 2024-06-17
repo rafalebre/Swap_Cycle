@@ -1,11 +1,12 @@
 import React from 'react';
 import './ContentArea.css';
+import ProductForm from './ProductForm';
 
 function ContentArea({ activeView }) {
     const renderContent = () => {
         switch (activeView) {
             case 'registerProduct':
-                return <div><p>Formulário de registro de produto aqui</p></div>;
+                return <div><ProductForm /></div>;
             case 'registerService':
                 return <div>Formulário de registro de serviço aqui</div>;
             case 'search':
