@@ -27,7 +27,7 @@ function ProductForm() {
     useEffect(() => {
         async function loadSubcategories() {
             if (selectedCategoryId) {
-                const response = await fetch(`http://localhost:5001/product-subcategories?category_id=${selectedCategoryId}`);
+                const response = await fetch(`http://localhost:5001/product-subcategories/${selectedCategoryId}`);
                 const data = await response.json();
                 setSubcategories(data);
             } else {
@@ -57,13 +57,18 @@ function ProductForm() {
         try {
             const formData = new FormData();
             Object.keys(product).forEach(key => {
-                formData.append(key, product[key]);
+                if (key === 'images') {
+                    formData.append(key, product[key]);
+                } else {
+                    formData.append(key, product[key]);
+                }
             });
-
+    
             const response = await fetch('http://localhost:5001/products', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    // Não defina 'Content-Type' aqui. Deixe o navegador definir para você
                 },
                 body: formData
             });
@@ -76,6 +81,7 @@ function ProductForm() {
             alert('Failed to register product: ' + error.message);
         }
     };
+    
 
     return (
         <form onSubmit={handleSubmit}>

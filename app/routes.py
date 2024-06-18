@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import db, User, Product, ProductCategory, Service, ServiceCategory, Trade, Wishlist, Favorite
+from .models import db, User, Product, ProductCategory, ProductSubcategory, Service, ServiceCategory, Trade, Wishlist, Favorite
 from sqlalchemy.exc import IntegrityError
 
 # Criação do Blueprint
@@ -87,6 +87,25 @@ def delete_product(product_id):
     db.session.delete(product)
     db.session.commit()
     return jsonify({"message": "Product deleted successfully"}), 200
+
+@products_blueprint.route('/product-categories', methods=['GET'])
+def get_product_categories():
+    try:
+        categories = ProductCategory.query.all()
+        categories_data = [{'id': cat.id, 'name': cat.name} for cat in categories]
+        return jsonify(categories_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@products_blueprint.route('/product-subcategories/<int:category_id>', methods=['GET'])
+def get_product_subcategories(category_id):
+    try:
+        subcategories = ProductSubcategory.query.filter_by(category_id=category_id).all()
+        subcategories_data = [{'id': sub.id, 'name': sub.name} for sub in subcategories]
+        return jsonify(subcategories_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @services_blueprint.route('/services', methods=['POST'])
