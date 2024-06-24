@@ -6,7 +6,10 @@ from flask_admin.contrib.sqla import ModelView
 from .config import Config
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 
+# Configuração do Flask-Uploads
+photos = UploadSet('photos', IMAGES)
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -18,6 +21,11 @@ def create_app():
     migrate.init_app(app, db)
     jwt = JWTManager(app)
 
+
+    # Configuração de upload
+    app.config['UPLOADED_PHOTOS_DEST'] = 'app/static/images'
+    configure_uploads(app, photos)
+    
     with app.app_context():
         db.create_all()
 

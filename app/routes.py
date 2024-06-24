@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import db, User, Product, ProductCategory, ProductSubcategory, Service, ServiceCategory, Trade, Wishlist, Favorite
 from sqlalchemy.exc import IntegrityError
+from flask_uploads import UploadSet, IMAGES, configure_uploads  
 
 # Criação do Blueprint
 products_blueprint = Blueprint('products', __name__)
@@ -10,15 +11,31 @@ trades_blueprint = Blueprint('trades', __name__)
 wishlists_blueprint = Blueprint('wishlists', __name__)
 favorites_blueprint = Blueprint('favorites', __name__)
 
+# Configuração do Flask-Uploads
+photos = UploadSet('photos', IMAGES)
+
+# Rota para criar produto
 @products_blueprint.route('/products', methods=['POST'])
 @jwt_required()
 def create_product():
     user_email = get_jwt_identity()
-    data = request.get_json()
+
+    # Verificar se os dados são multipart/form-data
+    if 'name' not in request.form:
+        return jsonify({"error": "Missing form data"}), 400
+
+    # Dados do formulário
+    name = request.form['name']
+    description = request.form.get('description')
+    category_id = request.form['category_id']
+    subcategory_id = request.form.get('subcategory_id')
+    condition = request.form['condition']
+    estimated_value = request.form.get('estimated_value')
+    location = request.form.get('location')
 
     # Validação dos campos obrigatórios
-    required_fields = ['name', 'description', 'category_id', 'condition', 'estimated_value', 'location']
-    if not all(field in data for field in required_fields):
+    required_fields = [name, category_id, condition]
+    if not all(required_fields):
         return jsonify({"error": "Missing data for one or more fields"}), 400
 
     # Encontrar o usuário baseado no e-mail
@@ -27,22 +44,28 @@ def create_product():
         return jsonify({"error": "User not found"}), 404
 
     # Verificar se a categoria existe
-    category = ProductCategory.query.filter_by(id=data['category_id']).first()
+    category = ProductCategory.query.filter_by(id=category_id).first()
     if not category:
         return jsonify({"error": "Category not found"}), 404
+
+    # Upload da imagem
+    image_url = None
+    if 'images' in request.files:
+        filename = photos.save(request.files['images'])
+        image_url = photos.url(filename)
 
     try:
         # Criação do produto
         product = Product(
             user_id=user.id,
-            name=data['name'],
-            description=data['description'],
-            category_id=data['category_id'],
-            condition=data['condition'],
-            estimated_value=data['estimated_value'],
-            location=data['location'],
-            # Opcional: subcategory_id=data.get('subcategory_id'),
-            # Opcional: images=data.get('images'),
+            name=name,
+            description=description,
+            category_id=category_id,
+            subcategory_id=subcategory_id,
+            condition=condition,
+            estimated_value=estimated_value,
+            location=location,
+            images=image_url,
         )
         db.session.add(product)
         db.session.commit()
@@ -51,6 +74,7 @@ def create_product():
         return jsonify({"error": "Failed to create product. Please check your data."}), 500
 
     return jsonify({"message": "Product created successfully", "product_id": product.id}), 201
+
 
 @products_blueprint.route('/products/<int:product_id>', methods=['PUT'])
 @jwt_required()
