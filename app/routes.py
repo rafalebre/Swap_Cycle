@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import db, User, Product, ProductCategory, ProductSubcategory, Service, ServiceCategory, Trade, Wishlist, Favorite
 from sqlalchemy.exc import IntegrityError
@@ -52,7 +52,7 @@ def create_product():
     image_url = None
     if 'images' in request.files:
         filename = photos.save(request.files['images'])
-        image_url = photos.url(filename)
+        image_url = url_for('uploaded_file', setname='photos', filename=filename, _external=True)
 
     try:
         # Criação do produto
@@ -74,6 +74,7 @@ def create_product():
         return jsonify({"error": "Failed to create product. Please check your data."}), 500
 
     return jsonify({"message": "Product created successfully", "product_id": product.id}), 201
+
 
 
 @products_blueprint.route('/products/<int:product_id>', methods=['PUT'])

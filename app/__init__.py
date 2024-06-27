@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_admin import Admin
@@ -13,6 +13,7 @@ photos = UploadSet('photos', IMAGES)
 
 db = SQLAlchemy()
 migrate = Migrate()
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -20,7 +21,6 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     jwt = JWTManager(app)
-
 
     # Configuração de upload
     app.config['UPLOADED_PHOTOS_DEST'] = 'app/static/images'
@@ -64,6 +64,11 @@ def create_app():
 
     from .routes import favorites_blueprint
     app.register_blueprint(favorites_blueprint, url_prefix='/api')
+
+    # Registrar a rota de uploads usando send_from_directory
+    @app.route('/uploads/<setname>/<path:filename>')
+    def uploaded_file(setname, filename):
+        return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], filename)
 
     @app.route('/')
     def hello():
