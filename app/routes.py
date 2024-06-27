@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import db, User, Product, ProductCategory, ProductSubcategory, Service, ServiceCategory, Trade, Wishlist, Favorite
+from .models import db, User, Product, ProductCategory, ProductSubcategory, Service, ServiceCategory, ServiceSubcategory, Trade, Wishlist, Favorite
 from sqlalchemy.exc import IntegrityError
 from flask_uploads import UploadSet, IMAGES, configure_uploads  
 
@@ -137,34 +137,53 @@ def get_product_subcategories(category_id):
 @jwt_required()
 def create_service():
     user_email = get_jwt_identity()
-    data = request.get_json()
 
-    # Verifica se o serviço é online para definir a necessidade do campo location
-    if data.get('online', False):
-        required_fields = ['name', 'description', 'category_id', 'online', 'estimated_value']
+    # Verificar se os dados são multipart/form-data
+    if 'name' not in request.form:
+        return jsonify({"error": "Missing form data"}), 400
+
+    # Dados do formulário
+    name = request.form['name']
+    description = request.form.get('description')
+    category_id = request.form['category_id']
+    online = request.form.get('online') == 'true'  # Assumindo que 'online' vem como string "true" ou "false"
+    location = request.form.get('location', None) if not online else None
+    estimated_value = request.form.get('estimated_value')
+
+    # Validação dos campos obrigatórios
+    if online:
+        required_fields = [name, category_id, online, estimated_value]
     else:
-        required_fields = ['name', 'description', 'category_id', 'location', 'online', 'estimated_value']
+        required_fields = [name, category_id, location, estimated_value]
 
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing data for one or more required fields"}), 400
+    if not all(required_fields):
+        return jsonify({"error": "Missing data for one or more fields"}), 400
 
     user = User.query.filter_by(email=user_email).first()
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    category = ServiceCategory.query.filter_by(id=data['category_id']).first()
+    category = ServiceCategory.query.filter_by(id=category_id).first()
     if not category:
         return jsonify({"error": "Category not found"}), 404
 
+    # Upload da imagem
+    image_url = None
+    if 'images' in request.files:
+        filename = photos.save(request.files['images'])
+        image_url = url_for('uploaded_file', setname='photos', filename=filename, _external=True)
+
     try:
+        # Criação do serviço
         service = Service(
             user_id=user.id,
-            name=data['name'],
-            description=data['description'],
-            category_id=data['category_id'],
-            online=data.get('online', False),
-            location=data.get('location', None),  # Será None se o serviço for online
-            estimated_value=data.get('estimated_value', None)
+            name=name,
+            description=description,
+            category_id=category_id,
+            online=online,
+            location=location,
+            estimated_value=estimated_value,
+            images=image_url
         )
         db.session.add(service)
         db.session.commit()
@@ -173,6 +192,7 @@ def create_service():
         return jsonify({"error": "Failed to create service. Please check your data."}), 500
 
     return jsonify({"message": "Service created successfully", "service_id": service.id}), 201
+
 
 
 @services_blueprint.route('/services/<int:service_id>', methods=['PUT'])
@@ -218,6 +238,26 @@ def delete_service(service_id):
     db.session.delete(service)
     db.session.commit()
     return jsonify({"message": "Service deleted successfully"}), 200
+
+
+@services_blueprint.route('/service-categories', methods=['GET'])
+def get_service_categories():
+    try:
+        categories = ServiceCategory.query.all()
+        categories_data = [{'id': cat.id, 'name': cat.name} for cat in categories]
+        return jsonify(categories_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@services_blueprint.route('/service-subcategories/<int:category_id>', methods=['GET'])
+def get_service_subcategories(category_id):
+    try:
+        subcategories = ServiceSubcategory.query.filter_by(category_id=category_id).all()
+        subcategories_data = [{'id': sub.id, 'name': sub.name} for sub in subcategories]
+        return jsonify(subcategories_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
