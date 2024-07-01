@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getUserInfo } from '../services/authService'; // Importar a função getUserInfo
 
 function ProductForm() {
     const [product, setProduct] = useState({
@@ -8,11 +9,13 @@ function ProductForm() {
         subcategory_id: '',
         condition: '',
         estimated_value: '',
-        images: null
+        images: null,
+        location: '' // Adicionar campo de localização
     });
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
+    const [useRegisteredAddress, setUseRegisteredAddress] = useState(false); // State para controlar o uso do endereço registrado
 
     useEffect(() => {
         async function loadCategories() {
@@ -38,6 +41,16 @@ function ProductForm() {
         loadSubcategories();
     }, [selectedCategoryId]);
 
+    useEffect(() => {
+        if (useRegisteredAddress) {
+            getUserInfo().then(data => {
+                setProduct(prev => ({ ...prev, location: data.address }));
+            }).catch(error => {
+                console.error('Failed to fetch user address:', error);
+            });
+        }
+    }, [useRegisteredAddress]); // Effect para carregar o endereço registrado quando o checkbox é marcado
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setProduct(prev => ({ ...prev, [name]: value }));
@@ -57,18 +70,13 @@ function ProductForm() {
         try {
             const formData = new FormData();
             Object.keys(product).forEach(key => {
-                if (key === 'images') {
-                    formData.append(key, product[key]);
-                } else {
-                    formData.append(key, product[key]);
-                }
+                formData.append(key, product[key]);
             });
-    
+
             const response = await fetch('http://localhost:5001/products', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    // Não defina 'Content-Type' aqui. Deixe o navegador definir para você
                 },
                 body: formData
             });
@@ -81,7 +89,6 @@ function ProductForm() {
             alert('Failed to register product: ' + error.message);
         }
     };
-    
 
     return (
         <form onSubmit={handleSubmit}>
@@ -122,6 +129,14 @@ function ProductForm() {
             <label>
                 Upload Image:
                 <input type="file" name="images" onChange={handleFileChange} />
+            </label>
+            <label>
+                Location:
+                <input type="text" name="location" value={product.location} onChange={handleChange} />
+            </label>
+            <label>
+                Use my registered address:
+                <input type="checkbox" checked={useRegisteredAddress} onChange={e => setUseRegisteredAddress(e.target.checked)} />
             </label>
             <button type="submit">Register Product</button>
         </form>
