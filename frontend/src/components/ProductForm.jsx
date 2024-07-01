@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUserInfo } from '../services/authService'; // Importar a função getUserInfo
+import MyGoogleMapComponent from './MyGoogleMapComponent'; // Importar o componente MyGoogleMapComponent
 
 function ProductForm() {
     const [product, setProduct] = useState({
@@ -50,6 +51,19 @@ function ProductForm() {
             });
         }
     }, [useRegisteredAddress]); // Effect para carregar o endereço registrado quando o checkbox é marcado
+
+    // Adicionando ouvinte para o evento de seleção de localização
+    useEffect(() => {
+        const handleAddressSelect = (event) => {
+            setProduct(product => ({ ...product, location: event.detail.address }));
+        };
+
+        window.addEventListener('placeSelected', handleAddressSelect);
+
+        return () => {
+            window.removeEventListener('placeSelected', handleAddressSelect);
+        };
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -138,6 +152,7 @@ function ProductForm() {
                 Use my registered address:
                 <input type="checkbox" checked={useRegisteredAddress} onChange={e => setUseRegisteredAddress(e.target.checked)} />
             </label>
+            <MyGoogleMapComponent /> {/* Incluído diretamente para gerenciar o autocomplete */}
             <button type="submit">Register Product</button>
         </form>
     );
