@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getUserInfo } from '../services/authService'; // Importar a função getUserInfo
 
 function ServiceForm() {
     const [service, setService] = useState({
@@ -14,6 +15,7 @@ function ServiceForm() {
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
+    const [useRegisteredAddress, setUseRegisteredAddress] = useState(false); // State para controlar o uso do endereço registrado
 
     useEffect(() => {
         async function loadCategories() {
@@ -38,6 +40,17 @@ function ServiceForm() {
 
         loadSubcategories();
     }, [selectedCategoryId]);
+
+    useEffect(() => {
+        // Atualizar o campo de localização com o endereço registrado se o checkbox for marcado e o serviço não for online
+        if (useRegisteredAddress && !service.online) {
+            getUserInfo().then(data => {
+                setService(prev => ({ ...prev, location: data.address }));
+            }).catch(error => {
+                console.error('Failed to fetch user address:', error);
+            });
+        }
+    }, [useRegisteredAddress, service.online]); // A dependência inclui service.online para reagir à mudança do modo online
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -68,11 +81,7 @@ function ServiceForm() {
         try {
             const formData = new FormData();
             Object.keys(service).forEach(key => {
-                if (key === 'images') {
-                    formData.append(key, service[key]);
-                } else {
-                    formData.append(key, service[key]);
-                }
+                formData.append(key, service[key]);
             });
 
             const response = await fetch('http://localhost:5001/services', {
@@ -130,6 +139,10 @@ function ServiceForm() {
                     <input type="text" name="location" value={service.location} onChange={handleChange} />
                 </label>
             }
+            <label>
+                Use my registered address:
+                <input type="checkbox" checked={useRegisteredAddress} onChange={e => setUseRegisteredAddress(e.target.checked)} disabled={service.online} />
+            </label>
             <label>
                 Estimated Value:
                 <input type="number" name="estimated_value" value={service.estimated_value} onChange={handleChange} />
