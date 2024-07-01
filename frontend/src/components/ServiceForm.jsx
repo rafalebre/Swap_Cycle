@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUserInfo } from '../services/authService'; // Importar a função getUserInfo
+import GoogleMapsAutocomplete from './GoogleMapsAutocomplete'; // Importar o novo componente de Autocomplete
 
 function ServiceForm() {
     const [service, setService] = useState({
@@ -42,7 +43,6 @@ function ServiceForm() {
     }, [selectedCategoryId]);
 
     useEffect(() => {
-        // Atualizar o campo de localização com o endereço registrado se o checkbox for marcado e o serviço não for online
         if (useRegisteredAddress && !service.online) {
             getUserInfo().then(data => {
                 setService(prev => ({ ...prev, location: data.address }));
@@ -136,7 +136,7 @@ function ServiceForm() {
             {!service.online &&
                 <label>
                     Location:
-                    <input type="text" name="location" value={service.location} onChange={handleChange} />
+                    <GoogleMapsAutocomplete onPlaceSelected={location => setService(prev => ({ ...prev, location }))} />
                 </label>
             }
             <label>
