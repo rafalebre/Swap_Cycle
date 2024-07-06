@@ -16,7 +16,8 @@ function ServiceForm() {
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
-    const [useRegisteredAddress, setUseRegisteredAddress] = useState(false); // State para controlar o uso do endereço registrado
+    const [useRegisteredAddress, setUseRegisteredAddress] = useState(false);
+    const [registeredAddress, setRegisteredAddress] = useState(''); // Estado para armazenar o endereço registrado
 
     useEffect(() => {
         async function loadCategories() {
@@ -50,7 +51,16 @@ function ServiceForm() {
                 console.error('Failed to fetch user address:', error);
             });
         }
-    }, [useRegisteredAddress, service.online]); // A dependência inclui service.online para reagir à mudança do modo online
+    }, [useRegisteredAddress, service.online]);
+
+    useEffect(() => {
+        // Carregar o endereço registrado para visualização
+        getUserInfo().then(data => {
+            setRegisteredAddress(data.address); // Definir o endereço registrado
+        }).catch(error => {
+            console.error('Failed to fetch user address:', error);
+        });
+    }, []); // Executar apenas no carregamento do componente
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -139,6 +149,10 @@ function ServiceForm() {
                     <GoogleMapsAutocomplete onPlaceSelected={location => setService(prev => ({ ...prev, location }))} />
                 </label>
             }
+            <label>
+                Registered Address:
+                <div>{registeredAddress || "No address registered."}</div>
+            </label>
             <label>
                 Use my registered address:
                 <input type="checkbox" checked={useRegisteredAddress} onChange={e => setUseRegisteredAddress(e.target.checked)} disabled={service.online} />

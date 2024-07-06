@@ -17,6 +17,7 @@ function ProductForm() {
     const [subcategories, setSubcategories] = useState([]);
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [useRegisteredAddress, setUseRegisteredAddress] = useState(false); // State para controlar o uso do endereço registrado
+    const [registeredAddress, setRegisteredAddress] = useState(''); // Estado para armazenar o endereço registrado
 
     useEffect(() => {
         async function loadCategories() {
@@ -50,7 +51,16 @@ function ProductForm() {
                 console.error('Failed to fetch user address:', error);
             });
         }
-    }, [useRegisteredAddress]); // Effect para carregar o endereço registrado quando o checkbox é marcado
+    }, [useRegisteredAddress]); // Apenas revertendo para a lógica original
+
+    useEffect(() => {
+        // Carregar o endereço registrado para visualização
+        getUserInfo().then(data => {
+            setRegisteredAddress(data.address); // Definir o endereço registrado
+        }).catch(error => {
+            console.error('Failed to fetch user address:', error);
+        });
+    }, []); // Adicionando sem afetar a lógica original
 
     const handlePlaceSelect = (address) => {
         setProduct(prevProduct => ({
@@ -141,6 +151,10 @@ function ProductForm() {
             <label>
                 Location:
                 <GoogleMapsAutocomplete onPlaceSelected={handlePlaceSelect} />
+            </label>
+            <label>
+                Registered Address:
+                <div>{registeredAddress || "No address registered."}</div>
             </label>
             <label>
                 Use my registered address:
