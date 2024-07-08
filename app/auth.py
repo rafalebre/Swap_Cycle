@@ -116,5 +116,7 @@ def get_user():
         "surname": user.surname,
         "birth_date": user.birth_date.strftime("%Y-%m-%d") if user.birth_date else None,
         "profile_picture": user.profile_picture,
-        "address": user.address
+        "address": user.address,
+        "latitude": user.latitude if user.latitude is not None else "",
+        "longitude": user.longitude if user.longitude is not None else ""
     }), 200

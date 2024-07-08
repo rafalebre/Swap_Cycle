@@ -107,7 +107,7 @@ const UserInfo = () => {
         </span>
       </div>
       <div>
-        <label>New Address (Enter manually or use the autocomplete on the Map) :</label>
+        <label>New Address (Start typing to use autocomplete) :</label>
         <GoogleMapsAutocomplete onPlaceSelected={handlePlaceSelect} />
       </div>
       {error && <div style={{ color: "red" }}>{error}</div>}
