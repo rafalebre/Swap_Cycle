@@ -75,6 +75,8 @@ def update_user():
     birth_date_str = data.get('birth_date')
     profile_picture = data.get('profile_picture')
     address = data.get('address')
+    latitude = data.get('latitude')  # Receber latitude como string
+    longitude = data.get('longitude')  # Receber longitude como string
 
     if name:
         user.name = name
@@ -88,10 +90,14 @@ def update_user():
         user.profile_picture = profile_picture
     if address:
         user.address = address
+    if latitude and longitude:  # Verifica se ambos latitude e longitude estão presentes
+        user.latitude = float(latitude)  # Converte latitude para float e armazena
+        user.longitude = float(longitude)  # Converte longitude para float e armazena
 
     db.session.commit()
 
     return jsonify({"message": "User information updated successfully"}), 200
+
 
 
 @auth_blueprint.route('/user', methods=['GET'])

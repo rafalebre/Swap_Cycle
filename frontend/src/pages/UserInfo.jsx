@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getUserInfo, updateUserInfo } from "../services/authService";
 import { useNavigate } from "react-router-dom";
-import MyGoogleMapComponent from "../components/MyGoogleMapComponent";
+import GoogleMapsAutocomplete from "../components/GoogleMapsAutocomplete"; // Usando o componente correto
 
 const UserInfo = () => {
   const [userInfo, setUserInfo] = useState({
@@ -12,6 +12,8 @@ const UserInfo = () => {
     birth_date: "",
     profile_picture: "",
     address: "",
+    latitude: "", // Inicializado corretamente
+    longitude: "", // Inicializado corretamente
   });
   const [initialAddress, setInitialAddress] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +24,11 @@ const UserInfo = () => {
     setLoading(true);
     getUserInfo()
       .then((data) => {
-        setUserInfo(data);
+        setUserInfo({
+          ...data,
+          latitude: data.latitude || "", // Garantir que latitude esteja configurada
+          longitude: data.longitude || "", // Garantir que longitude esteja configurada
+        });
         setInitialAddress(data.address); // Armazena o endereço inicial
         setLoading(false);
       })
@@ -31,24 +37,23 @@ const UserInfo = () => {
         setError("Failed to load user data");
         setLoading(false);
       });
-
-    // Adiciona um ouvinte para o evento de seleção de endereço
-    const handleAddressSelect = (event) => {
-      setUserInfo(userInfo => ({ ...userInfo, address: event.detail.address }));
-    };
-
-    window.addEventListener('placeSelected', handleAddressSelect);
-
-    return () => {
-      window.removeEventListener('placeSelected', handleAddressSelect);
-    };
   }, []);
 
-  const handleChange = (e) => {
+  const handlePlaceSelect = (address, lat, lng) => {
     setUserInfo({
       ...userInfo,
-      [e.target.name]: e.target.value,
+      address: address,
+      latitude: lat,
+      longitude: lng
     });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserInfo(prev => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -103,14 +108,8 @@ const UserInfo = () => {
       </div>
       <div>
         <label>New Address (Enter manually or use the autocomplete on the Map) :</label>
-        <input
-          type="text"
-          name="address"
-          value={userInfo.address}
-          onChange={handleChange}
-        />
+        <GoogleMapsAutocomplete onPlaceSelected={handlePlaceSelect} />
       </div>
-      <MyGoogleMapComponent />
       {error && <div style={{ color: "red" }}>{error}</div>}
       <button type="submit" disabled={loading}>
         Update Info
