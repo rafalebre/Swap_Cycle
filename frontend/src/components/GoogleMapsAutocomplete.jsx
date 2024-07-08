@@ -19,8 +19,12 @@ function GoogleMapsAutocomplete({ onPlaceSelected }) {
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
-        if (place.formatted_address && onPlaceSelected) {
-          onPlaceSelected(place.formatted_address);
+        if (place.geometry && place.formatted_address && onPlaceSelected) {
+          onPlaceSelected(
+            place.formatted_address,
+            place.geometry.location.lat(),
+            place.geometry.location.lng()
+          );
         }
       });
     });

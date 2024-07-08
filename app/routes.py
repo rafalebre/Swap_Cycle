@@ -32,9 +32,11 @@ def create_product():
     condition = request.form['condition']
     estimated_value = request.form.get('estimated_value')
     location = request.form.get('location')
+    latitude = request.form.get('latitude')  # Receber latitude
+    longitude = request.form.get('longitude')  # Receber longitude
 
     # Validação dos campos obrigatórios
-    required_fields = [name, category_id, condition]
+    required_fields = [name, category_id, condition, latitude, longitude]  # Adicionar latitude e longitude aos campos obrigatórios
     if not all(required_fields):
         return jsonify({"error": "Missing data for one or more fields"}), 400
 
@@ -65,6 +67,8 @@ def create_product():
             condition=condition,
             estimated_value=estimated_value,
             location=location,
+            latitude=float(latitude),  # Garantir que latitude seja armazenada como float
+            longitude=float(longitude),  # Garantir que longitude seja armazenada como float
             images=image_url,
         )
         db.session.add(product)
@@ -74,7 +78,6 @@ def create_product():
         return jsonify({"error": "Failed to create product. Please check your data."}), 500
 
     return jsonify({"message": "Product created successfully", "product_id": product.id}), 201
-
 
 
 @products_blueprint.route('/products/<int:product_id>', methods=['PUT'])
@@ -148,13 +151,15 @@ def create_service():
     category_id = request.form['category_id']
     online = request.form.get('online') == 'true'  # Assumindo que 'online' vem como string "true" ou "false"
     location = request.form.get('location', None) if not online else None
+    latitude = request.form.get('latitude', None) if not online else None
+    longitude = request.form.get('longitude', None) if not online else None
     estimated_value = request.form.get('estimated_value')
 
     # Validação dos campos obrigatórios
     if online:
         required_fields = [name, category_id, online, estimated_value]
     else:
-        required_fields = [name, category_id, location, estimated_value]
+        required_fields = [name, category_id, location, latitude, longitude, estimated_value]
 
     if not all(required_fields):
         return jsonify({"error": "Missing data for one or more fields"}), 400
@@ -182,6 +187,8 @@ def create_service():
             category_id=category_id,
             online=online,
             location=location,
+            latitude=float(latitude) if latitude else None,
+            longitude=float(longitude) if longitude else None,
             estimated_value=estimated_value,
             images=image_url
         )
@@ -192,7 +199,6 @@ def create_service():
         return jsonify({"error": "Failed to create service. Please check your data."}), 500
 
     return jsonify({"message": "Service created successfully", "service_id": service.id}), 201
-
 
 
 @services_blueprint.route('/services/<int:service_id>', methods=['PUT'])

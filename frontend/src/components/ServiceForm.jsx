@@ -10,6 +10,8 @@ function ServiceForm() {
         subcategory_id: '',
         online: false,
         location: '',
+        latitude: '', // Adicionar campo de latitude
+        longitude: '', // Adicionar campo de longitude
         estimated_value: '',
         images: null
     });
@@ -46,7 +48,7 @@ function ServiceForm() {
     useEffect(() => {
         if (useRegisteredAddress && !service.online) {
             getUserInfo().then(data => {
-                setService(prev => ({ ...prev, location: data.address }));
+                setService(prev => ({ ...prev, location: data.address, latitude: data.latitude, longitude: data.longitude }));
             }).catch(error => {
                 console.error('Failed to fetch user address:', error);
             });
@@ -146,7 +148,8 @@ function ServiceForm() {
             {!service.online &&
                 <label>
                     Location:
-                    <GoogleMapsAutocomplete onPlaceSelected={location => setService(prev => ({ ...prev, location }))} />
+                    <GoogleMapsAutocomplete onPlaceSelected={(location, latitude, longitude) => 
+                        setService(prev => ({ ...prev, location, latitude, longitude }))} />
                 </label>
             }
             <label>

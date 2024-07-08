@@ -11,7 +11,9 @@ function ProductForm() {
         condition: '',
         estimated_value: '',
         images: null,
-        location: '' // Adicionar campo de localização
+        location: '', // Adicionar campo de localização
+        latitude: '', // Adicionar campo de latitude
+        longitude: '' // Adicionar campo de longitude
     });
     const [categories, setCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
@@ -46,7 +48,7 @@ function ProductForm() {
     useEffect(() => {
         if (useRegisteredAddress) {
             getUserInfo().then(data => {
-                setProduct(prev => ({ ...prev, location: data.address }));
+                setProduct(prev => ({ ...prev, location: data.address, latitude: data.latitude, longitude: data.longitude }));
             }).catch(error => {
                 console.error('Failed to fetch user address:', error);
             });
@@ -62,10 +64,12 @@ function ProductForm() {
         });
     }, []); // Adicionando sem afetar a lógica original
 
-    const handlePlaceSelect = (address) => {
+    const handlePlaceSelect = (address, lat, lng) => {
         setProduct(prevProduct => ({
             ...prevProduct,
-            location: address
+            location: address,
+            latitude: lat,
+            longitude: lng
         }));
     };
 
