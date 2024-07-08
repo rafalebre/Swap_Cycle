@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import db, User, Product, ProductCategory, ProductSubcategory, Service, ServiceCategory, ServiceSubcategory, Trade, Wishlist, Favorite
 from sqlalchemy.exc import IntegrityError
 from flask_uploads import UploadSet, IMAGES, configure_uploads  
+from sqlalchemy import or_
 
 # Criação do Blueprint
 products_blueprint = Blueprint('products', __name__)
@@ -264,6 +265,65 @@ def get_service_subcategories(category_id):
         return jsonify(subcategories_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+from flask import request, jsonify
+from .models import db, Product, Service
+from sqlalchemy import or_
+
+@products_blueprint.route('/search', methods=['GET'])
+@jwt_required()
+def search_items():
+    search_type = request.args.get('type', 'all')  # 'products', 'services', ou 'all'
+    category_id = request.args.get('category_id', type=int, default=None)
+    subcategory_id = request.args.get('subcategory_id', type=int, default=None)
+    keyword = request.args.get('keyword', default="")
+
+    results = []
+
+    if search_type in ['all', 'products']:
+        query = Product.query
+        if category_id:
+            query = query.filter_by(category_id=category_id)
+        if subcategory_id:
+            query = query.filter_by(subcategory_id=subcategory_id)
+        if keyword:
+            query = query.filter(Product.name.ilike(f'%{keyword}%'))
+        products = query.all()
+        for product in products:
+            results.append({
+                "type": "Product",
+                "id": product.id,
+                "name": product.name,
+                "description": product.description,
+                "category": product.category.name if product.category else "",
+                "location": product.location,
+                "latitude": product.latitude,
+                "longitude": product.longitude
+            })
+
+    if search_type in ['all', 'services']:
+        query = Service.query
+        if category_id:
+            query = query.filter_by(category_id=category_id)
+        if subcategory_id:
+            query = query.filter_by(subcategory_id=subcategory_id)
+        if keyword:
+            query = query.filter(Service.name.ilike(f'%{keyword}%'))
+        services = query.all()
+        for service in services:
+            results.append({
+                "type": "Service",
+                "id": service.id,
+                "name": service.name,
+                "description": service.description,
+                "category": service.category.name if service.category else "",
+                "location": service.location,
+                "latitude": service.latitude,
+                "longitude": service.longitude
+            })
+
+    return jsonify(results), 200
 
 
 
