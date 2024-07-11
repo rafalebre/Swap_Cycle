@@ -267,10 +267,6 @@ def get_service_subcategories(category_id):
         return jsonify({"error": str(e)}), 500
 
 
-from flask import request, jsonify
-from .models import db, Product, Service
-from sqlalchemy import or_
-
 @products_blueprint.route('/search', methods=['GET'])
 @jwt_required()
 def search_items():
@@ -295,9 +291,9 @@ def search_items():
                 "type": "Product",
                 "id": product.id,
                 "name": product.name,
-                "description": product.description,
                 "category": product.category.name if product.category else "",
-                "location": product.location,
+                "subcategory": product.subcategory.name if product.subcategory else "",
+                "estimated_value": product.estimated_value,
                 "latitude": product.latitude,
                 "longitude": product.longitude
             })
@@ -316,14 +312,15 @@ def search_items():
                 "type": "Service",
                 "id": service.id,
                 "name": service.name,
-                "description": service.description,
                 "category": service.category.name if service.category else "",
-                "location": service.location,
+                "subcategory": service.subcategory.name if service.subcategory else "",
+                "estimated_value": service.estimated_value,
                 "latitude": service.latitude,
                 "longitude": service.longitude
             })
 
     return jsonify(results), 200
+
 
 
 

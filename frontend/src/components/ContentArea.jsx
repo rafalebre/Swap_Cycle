@@ -2,6 +2,7 @@ import React from 'react';
 import './ContentArea.css';
 import ProductForm from './ProductForm';
 import ServiceForm from './ServiceForm';
+import Search from './Search';
 
 function ContentArea({ activeView }) {
     const renderContent = () => {
@@ -11,7 +12,7 @@ function ContentArea({ activeView }) {
             case 'registerService':
                 return <div><ServiceForm /></div>;
             case 'search':
-                return <div>Componente de busca aqui</div>;
+                return <div><Search /></div>;
             case 'onlineServices':
                 return <div>Componente para serviços online aqui</div>;
             case 'myProducts':
