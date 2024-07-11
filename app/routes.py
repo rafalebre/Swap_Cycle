@@ -274,6 +274,10 @@ def search_items():
     category_id = request.args.get('category_id', type=int, default=None)
     subcategory_id = request.args.get('subcategory_id', type=int, default=None)
     keyword = request.args.get('keyword', default="")
+    north = request.args.get('north', type=float, default=None)
+    south = request.args.get('south', type=float, default=None)
+    east = request.args.get('east', type=float, default=None)
+    west = request.args.get('west', type=float, default=None)
 
     results = []
 
@@ -285,6 +289,9 @@ def search_items():
             query = query.filter_by(subcategory_id=subcategory_id)
         if keyword:
             query = query.filter(Product.name.ilike(f'%{keyword}%'))
+        if None not in (north, south, east, west):
+            query = query.filter(Product.latitude <= north, Product.latitude >= south,
+                                 Product.longitude <= east, Product.longitude >= west)
         products = query.all()
         for product in products:
             results.append({
@@ -306,6 +313,9 @@ def search_items():
             query = query.filter_by(subcategory_id=subcategory_id)
         if keyword:
             query = query.filter(Service.name.ilike(f'%{keyword}%'))
+        if None not in (north, south, east, west):
+            query = query.filter(Service.latitude <= north, Service.latitude >= south,
+                                 Service.longitude <= east, Service.longitude >= west)
         services = query.all()
         for service in services:
             results.append({

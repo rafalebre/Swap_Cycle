@@ -23,8 +23,30 @@ function SearchMapComponent() {
           const google = window.google;
           const map = new google.maps.Map(mapRef.current, {
             center: { lat: -34.397, lng: 150.644 },
-            zoom: 10, // Zoom inicial
+            zoom: 10,
           });
+
+          // Atualizar o estado global ou local com os bounds sempre que o mapa é movido ou o zoom é alterado
+          const updateBounds = () => {
+            if (!mapRef.current || !window.google || !map.getBounds()) return;
+
+            
+            const bounds = map.getBounds();
+            const ne = bounds.getNorthEast(); // canto nordeste
+            const sw = bounds.getSouthWest(); // canto sudoeste
+            window.dispatchEvent(new CustomEvent("mapBoundsChanged", {
+              detail: {
+                north: ne.lat(),
+                east: ne.lng(),
+                south: sw.lat(),
+                west: sw.lng()
+              }
+            }));
+          };
+
+          map.addListener('idle', updateBounds);
+          map.addListener('dragend', updateBounds);
+          map.addListener('zoom_changed', updateBounds);
 
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -35,6 +57,7 @@ function SearchMapComponent() {
                 };
                 map.setCenter(currentLocation);
                 map.setZoom(10); // Configurado para um zoom que aproxima a visualização para um raio de 10 a 20 km
+                updateBounds(); // Atualizar bounds após definir a localização
               },
               (error) => {
                 console.error("Error fetching the geolocation: ", error);
@@ -50,12 +73,7 @@ function SearchMapComponent() {
               return;
             }
             map.fitBounds(places[0].geometry.viewport);
-            // Disparar um evento personalizado com o endereço selecionado
-            window.dispatchEvent(
-              new CustomEvent("placeSelected", {
-                detail: { address: places[0].formatted_address },
-              })
-            );
+            updateBounds(); // Atualizar bounds após a pesquisa de localização
           });
         }
       });

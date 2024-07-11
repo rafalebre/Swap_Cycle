@@ -8,6 +8,24 @@ const Search = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [items, setItems] = useState([]);
+  const [mapBounds, setMapBounds] = useState(null);
+
+  useEffect(() => {
+    const handleBoundsChange = (event) => {
+      setMapBounds({
+        north: event.detail.north,
+        east: event.detail.east,
+        south: event.detail.south,
+        west: event.detail.west,
+      });
+    };
+
+    window.addEventListener("mapBoundsChanged", handleBoundsChange);
+
+    return () => {
+      window.removeEventListener("mapBoundsChanged", handleBoundsChange);
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -51,9 +69,12 @@ const Search = () => {
 
   useEffect(() => {
     async function fetchItems() {
-      const queryParams = `type=${searchType}&category_id=${
+      let queryParams = `type=${searchType}&category_id=${
         selectedCategoryId || ""
       }&subcategory_id=${selectedSubcategoryId || ""}`;
+      if (mapBounds) {
+        queryParams += `&north=${mapBounds.north}&south=${mapBounds.south}&east=${mapBounds.east}&west=${mapBounds.west}`;
+      }
       const response = await fetch(
         `http://localhost:5001/search?${queryParams}`,
         {
@@ -64,7 +85,7 @@ const Search = () => {
       setItems(data);
     }
     fetchItems();
-  }, [searchType, selectedCategoryId, selectedSubcategoryId]);
+  }, [searchType, selectedCategoryId, selectedSubcategoryId, mapBounds]);
 
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
