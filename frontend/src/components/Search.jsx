@@ -9,6 +9,8 @@ const Search = () => {
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [items, setItems] = useState([]);
   const [mapBounds, setMapBounds] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Define a quantidade de itens por página diretamente
 
   useEffect(() => {
     const handleBoundsChange = (event) => {
@@ -87,52 +89,49 @@ const Search = () => {
     fetchItems();
   }, [searchType, selectedCategoryId, selectedSubcategoryId, mapBounds]);
 
+  // Calculando os itens a serem exibidos na página atual
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Mudar a página
+  const paginate = pageNumber => setCurrentPage(pageNumber);
+
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
       <div style={{ width: "60%", padding: "20px" }}>
-        <select
-          onChange={(e) => setSearchType(e.target.value)}
-          value={searchType}
-        >
+        <select onChange={(e) => setSearchType(e.target.value)} value={searchType}>
           <option value="all">All</option>
           <option value="products">Products</option>
           <option value="services">Services</option>
         </select>
-        <select
-          onChange={(e) => setSelectedCategoryId(e.target.value)}
-          value={selectedCategoryId}
-        >
+        <select onChange={(e) => setSelectedCategoryId(e.target.value)} value={selectedCategoryId}>
           <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
+          {categories.map(category => (
+            <option key={category.id} value={category.id}>{category.name}</option>
           ))}
         </select>
-        <select
-          onChange={(e) => setSelectedSubcategoryId(e.target.value)}
-          value={selectedSubcategoryId}
-          disabled={!selectedCategoryId}
-        >
+        <select onChange={(e) => setSelectedSubcategoryId(e.target.value)} value={selectedSubcategoryId} disabled={!selectedCategoryId}>
           <option value="">Select a subcategory</option>
-          {subcategories.map((subcategory) => (
-            <option key={subcategory.id} value={subcategory.id}>
-              {subcategory.name}
-            </option>
+          {subcategories.map(subcategory => (
+            <option key={subcategory.id} value={subcategory.id}>{subcategory.name}</option>
           ))}
         </select>
         <ul>
-          {items.map((item) => (
+          {currentItems.map(item => (
             <li key={`${item.type}-${item.id}`}>
               <h4>{item.name}</h4>
-              <p>
-                Category: {item.category} ({item.subcategory})
-              </p>
+              <p>Category: {item.category} ({item.subcategory})</p>
               <p>Estimated Value: {item.estimated_value}</p>
               <p>Location: {item.location}</p>
             </li>
           ))}
         </ul>
+        <div>
+          {Array.from({ length: Math.ceil(items.length / itemsPerPage) }, (_, i) => i + 1).map(number => (
+            <button key={number} onClick={() => paginate(number)}>{number}</button>
+          ))}
+        </div>
       </div>
       <div style={{ width: "40%" }}>
         <SearchMapComponent />
