@@ -97,6 +97,13 @@ const Search = () => {
   // Mudar a página
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
+  // Selecionar um item da lista
+  const selectItem = (lat, lng) => {
+    window.dispatchEvent(new CustomEvent("itemSelected", {
+      detail: { lat, lng }
+    }));
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
       <div style={{ width: "60%", padding: "20px" }}>
@@ -119,7 +126,7 @@ const Search = () => {
         </select>
         <ul>
           {currentItems.map(item => (
-            <li key={`${item.type}-${item.id}`}>
+            <li key={`${item.type}-${item.id}`} onClick={() => selectItem(item.latitude, item.longitude)} style={{ cursor: 'pointer' }}>
               <h4>{item.name}</h4>
               <p>Category: {item.category} ({item.subcategory})</p>
               <p>Estimated Value: {item.estimated_value}</p>

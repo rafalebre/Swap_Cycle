@@ -9,6 +9,7 @@ const containerStyle = {
 function SearchMapComponent() {
   const mapRef = useRef(null);
   const searchBoxRef = useRef(null);
+  const markers = useRef([]);
 
   useEffect(() => {
     const initializeMap = () => {
@@ -26,11 +27,30 @@ function SearchMapComponent() {
             zoom: 10,
           });
 
+          // Array para armazenar os marcadores
+          markers.current = [];
+
+          // Função para adicionar marcador no mapa
+          const addMarker = (location) => {
+            const marker = new google.maps.Marker({
+              position: location,
+              map,
+            });
+            markers.current.push(marker);
+          };
+
+          // Função para limpar todos os marcadores do mapa
+          const clearMarkers = () => {
+            markers.current.forEach((marker) => {
+              marker.setMap(null);
+            });
+            markers.current = [];
+          };
+
           // Atualizar o estado global ou local com os bounds sempre que o mapa é movido ou o zoom é alterado
           const updateBounds = () => {
             if (!mapRef.current || !window.google || !map.getBounds()) return;
 
-            
             const bounds = map.getBounds();
             const ne = bounds.getNorthEast(); // canto nordeste
             const sw = bounds.getSouthWest(); // canto sudoeste
@@ -39,15 +59,17 @@ function SearchMapComponent() {
                 north: ne.lat(),
                 east: ne.lng(),
                 south: sw.lat(),
-                west: sw.lng()
+                west: sw.lng(),
               }
             }));
           };
 
+          // Event listeners para atualizar bounds
           map.addListener('idle', updateBounds);
           map.addListener('dragend', updateBounds);
           map.addListener('zoom_changed', updateBounds);
 
+          // Geolocalização
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
               (position) => {
@@ -65,6 +87,7 @@ function SearchMapComponent() {
             );
           }
 
+          // SearchBox
           const searchBox = new google.maps.places.SearchBox(searchBoxRef.current);
           map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
           searchBox.addListener("places_changed", () => {
@@ -74,6 +97,18 @@ function SearchMapComponent() {
             }
             map.fitBounds(places[0].geometry.viewport);
             updateBounds(); // Atualizar bounds após a pesquisa de localização
+          });
+
+          // Event listener para clicar na lista de itens e adicionar marcador
+          window.addEventListener("itemSelected", (event) => {
+            const location = {
+              lat: event.detail.lat,
+              lng: event.detail.lng,
+            };
+            clearMarkers(); // Limpar marcadores anteriores
+            addMarker(location); // Adicionar novo marcador
+            map.setCenter(location); // Centralizar mapa no novo marcador
+            map.setZoom(15); // Ajustar zoom para o novo marcador
           });
         }
       });
