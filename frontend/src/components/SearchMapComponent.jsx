@@ -27,33 +27,29 @@ function SearchMapComponent() {
             zoom: 10,
           });
 
-          // Array para armazenar os marcadores
           markers.current = [];
 
-          // Função para adicionar marcador no mapa
           const addMarker = (location) => {
-            const marker = new google.maps.Marker({
-              position: location,
-              map,
-            });
-            markers.current.push(marker);
+            if (location && !isNaN(location.lat) && !isNaN(location.lng)) {
+              const marker = new google.maps.Marker({
+                position: new google.maps.LatLng(location.lat, location.lng),
+                map,
+              });
+              markers.current.push(marker);
+            }
           };
 
-          // Função para limpar todos os marcadores do mapa
           const clearMarkers = () => {
-            markers.current.forEach((marker) => {
-              marker.setMap(null);
-            });
+            markers.current.forEach(marker => marker.setMap(null));
             markers.current = [];
           };
 
-          // Atualizar o estado global ou local com os bounds sempre que o mapa é movido ou o zoom é alterado
           const updateBounds = () => {
             if (!mapRef.current || !window.google || !map.getBounds()) return;
 
             const bounds = map.getBounds();
-            const ne = bounds.getNorthEast(); // canto nordeste
-            const sw = bounds.getSouthWest(); // canto sudoeste
+            const ne = bounds.getNorthEast();
+            const sw = bounds.getSouthWest();
             window.dispatchEvent(new CustomEvent("mapBoundsChanged", {
               detail: {
                 north: ne.lat(),
@@ -64,12 +60,10 @@ function SearchMapComponent() {
             }));
           };
 
-          // Event listeners para atualizar bounds
           map.addListener('idle', updateBounds);
           map.addListener('dragend', updateBounds);
           map.addListener('zoom_changed', updateBounds);
 
-          // Geolocalização
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
               (position) => {
@@ -78,8 +72,8 @@ function SearchMapComponent() {
                   lng: position.coords.longitude,
                 };
                 map.setCenter(currentLocation);
-                map.setZoom(10); // Configurado para um zoom que aproxima a visualização para um raio de 10 a 20 km
-                updateBounds(); // Atualizar bounds após definir a localização
+                map.setZoom(10);
+                updateBounds();
               },
               (error) => {
                 console.error("Error fetching the geolocation: ", error);
@@ -87,28 +81,22 @@ function SearchMapComponent() {
             );
           }
 
-          // SearchBox
           const searchBox = new google.maps.places.SearchBox(searchBoxRef.current);
           map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
           searchBox.addListener("places_changed", () => {
             const places = searchBox.getPlaces();
-            if (places.length === 0) {
-              return;
-            }
+            if (places.length === 0) return;
             map.fitBounds(places[0].geometry.viewport);
-            updateBounds(); // Atualizar bounds após a pesquisa de localização
+            updateBounds();
           });
 
-          // Event listener para clicar na lista de itens e adicionar marcador
-          window.addEventListener("itemSelected", (event) => {
-            const location = {
-              lat: event.detail.lat,
-              lng: event.detail.lng,
-            };
-            clearMarkers(); // Limpar marcadores anteriores
-            addMarker(location); // Adicionar novo marcador
-            map.setCenter(location); // Centralizar mapa no novo marcador
-            map.setZoom(15); // Ajustar zoom para o novo marcador
+          window.addEventListener("itemsUpdated", (event) => {
+            clearMarkers();
+            event.detail.items.forEach(item => {
+              if (item.latitude && item.longitude) {
+                addMarker({ lat: parseFloat(item.latitude), lng: parseFloat(item.longitude) });
+              }
+            });
           });
         }
       });

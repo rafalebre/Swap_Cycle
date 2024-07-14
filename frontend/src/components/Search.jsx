@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import SearchMapComponent from "./SearchMapComponent"; // Importando o componente do mapa
+import SearchMapComponent from "./SearchMapComponent";
 
 const Search = () => {
   const [searchType, setSearchType] = useState("all");
@@ -10,7 +10,7 @@ const Search = () => {
   const [items, setItems] = useState([]);
   const [mapBounds, setMapBounds] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Define a quantidade de itens por página diretamente
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const handleBoundsChange = (event) => {
@@ -31,16 +31,10 @@ const Search = () => {
 
   useEffect(() => {
     async function fetchCategories() {
-      const response = await fetch(
-        `http://localhost:5001/${
-          searchType === "services"
-            ? "service-categories"
-            : "product-categories"
-        }`
-      );
+      const response = await fetch(`http://localhost:5001/${searchType === "services" ? "service-categories" : "product-categories"}`);
       const data = await response.json();
       setCategories(data);
-      setSubcategories([]); // Reset subcategories when type or category changes
+      setSubcategories([]);
     }
     if (searchType !== "all") {
       fetchCategories();
@@ -53,13 +47,7 @@ const Search = () => {
   useEffect(() => {
     async function fetchSubcategories() {
       if (selectedCategoryId) {
-        const response = await fetch(
-          `http://localhost:5001/${
-            searchType === "services"
-              ? "service-subcategories"
-              : "product-subcategories"
-          }/${selectedCategoryId}`
-        );
+        const response = await fetch(`http://localhost:5001/${searchType === "services" ? "service-subcategories" : "product-subcategories"}/${selectedCategoryId}`);
         const data = await response.json();
         setSubcategories(data);
       } else {
@@ -71,37 +59,38 @@ const Search = () => {
 
   useEffect(() => {
     async function fetchItems() {
-      let queryParams = `type=${searchType}&category_id=${
-        selectedCategoryId || ""
-      }&subcategory_id=${selectedSubcategoryId || ""}`;
+      let queryParams = `type=${searchType}&category_id=${selectedCategoryId || ""}&subcategory_id=${selectedSubcategoryId || ""}`;
       if (mapBounds) {
         queryParams += `&north=${mapBounds.north}&south=${mapBounds.south}&east=${mapBounds.east}&west=${mapBounds.west}`;
       }
-      const response = await fetch(
-        `http://localhost:5001/search?${queryParams}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      const response = await fetch(`http://localhost:5001/search?${queryParams}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       const data = await response.json();
       setItems(data);
+
+      const validItems = data.filter(item => !isNaN(parseFloat(item.latitude)) && !isNaN(parseFloat(item.longitude)));
+      window.dispatchEvent(
+        new CustomEvent("itemsUpdated", {
+          detail: { items: validItems },
+        })
+      );
     }
     fetchItems();
   }, [searchType, selectedCategoryId, selectedSubcategoryId, mapBounds]);
 
-  // Calculando os itens a serem exibidos na página atual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Mudar a página
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
-  // Selecionar um item da lista
   const selectItem = (lat, lng) => {
-    window.dispatchEvent(new CustomEvent("itemSelected", {
-      detail: { lat, lng }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("itemSelected", {
+        detail: { lat, lng },
+      })
+    );
   };
 
   return (
