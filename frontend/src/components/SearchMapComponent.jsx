@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
+import './SearchMapComponent.css';
 
 const containerStyle = {
   width: "40vw", // Ajustado para 40% da largura da viewport

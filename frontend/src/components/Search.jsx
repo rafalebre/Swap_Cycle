@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SearchMapComponent from "./SearchMapComponent";
+import './Search.css';
 
 const Search = () => {
   const [searchType, setSearchType] = useState("all");
@@ -11,6 +12,8 @@ const Search = () => {
   const [mapBounds, setMapBounds] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [hoveredItemId, setHoveredItemId] = useState(null);
+
 
   useEffect(() => {
     const handleBoundsChange = (event) => {
@@ -79,6 +82,13 @@ const Search = () => {
     fetchItems();
   }, [searchType, selectedCategoryId, selectedSubcategoryId, mapBounds]);
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("itemHoverChanged", {
+      detail: { itemId: hoveredItemId },
+    }));
+  }, [hoveredItemId]);
+  
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -114,15 +124,21 @@ const Search = () => {
           ))}
         </select>
         <ul>
-          {currentItems.map(item => (
-            <li key={`${item.type}-${item.id}`} onClick={() => selectItem(item.latitude, item.longitude)} style={{ cursor: 'pointer' }}>
-              <h4>{item.name}</h4>
-              <p>Category: {item.category} ({item.subcategory})</p>
-              <p>Estimated Value: {item.estimated_value}</p>
-              <p>Location: {item.location}</p>
-            </li>
-          ))}
-        </ul>
+  {currentItems.map(item => (
+    <li key={`${item.type}-${item.id}`}
+        onMouseEnter={() => setHoveredItemId(item.id)}
+        onMouseLeave={() => setHoveredItemId(null)}
+        onClick={() => selectItem(item.latitude, item.longitude)}
+        className={`search-item ${hoveredItemId === item.id ? 'active-item' : ''}`} // Adiciona classe condicionalmente
+        style={{ cursor: 'pointer' }}>
+      <h4>{item.name}</h4>
+      <p>Category: {item.category} ({item.subcategory})</p>
+      <p>Estimated Value: {item.estimated_value}</p>
+      <p>Location: {item.location}</p>
+    </li>
+  ))}
+</ul>
+
         <div>
           {Array.from({ length: Math.ceil(items.length / itemsPerPage) }, (_, i) => i + 1).map(number => (
             <button key={number} onClick={() => paginate(number)}>{number}</button>

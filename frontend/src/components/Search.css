@@ -1,0 +1,15 @@
+/* Estilo para itens da lista ao passar o mouse */
+.search-item {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .search-item:hover {
+    background-color: #f0f0f0; /* Cor de fundo ao passar o mouse */
+  }
+  
+  /* Estilo para o item ativo - quando o mouse está sobre ele */
+  .active-item {
+    background-color: #e0e0e0; /* Cor de fundo um pouco mais escura */
+  }
